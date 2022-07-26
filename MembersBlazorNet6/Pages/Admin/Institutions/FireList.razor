@@ -1,0 +1,339 @@
+﻿@page "/admin/institutions/fireList/{Id:int}"
+
+@inject IDbContextFactory<ApplicationDbContext> _contextFactory
+@inject NotificationService _notificationService
+@inject TooltipService _tooltipService
+@inject NavigationManager _navigationManager
+@inject DialogService _dialogService
+
+<div class="container">
+    @if (ProgressBarVisible)
+    {
+        <RadzenProgressBar Value="100" ShowValue="false" Mode="ProgressBarMode.Indeterminate" />
+    }
+    else
+    {
+        <Breadcrumb Title="@Title" />
+        <RadzenButton Text="Dodaj nowe" Icon="add_circle_outline" Click="@InsertRow" ButtonStyle="ButtonStyle.Primary" Style="margin-bottom: 20px;" Disabled=@(unionInstitutionToInsert != null) />
+
+        <RadzenDataGrid @ref="@unionInstitutionGrid" Data="@GetUnionInstitutions" TItem="UnionInstitution" AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" AllowPaging="true" AllowSorting="true" FilterMode="FilterMode.Simple" EditMode="DataGridEditMode.Single" RowUpdate="@OnUpdateRow" RowCreate="@OnCreateRow" ExpandMode="DataGridExpandMode.Single">
+            <EmptyTemplate>
+                <p style="color: lightgrey; font-size: 24px; text-align: center; margin: 2rem;">Brak danych.</p>
+            </EmptyTemplate>
+            <Template Context="unionInstitution">
+                @{
+                    using (var _context = _contextFactory.CreateDbContext())
+                    {
+                        @*var usersCount = _context.ApplicationUser.Where(u => u.UnionIntitutionId == unionInstitution.Id).Count();*@
+                        var address = _context.UnionInstitutionAddress
+                           .FirstOrDefault(a => a.UnionInstitutionId == unionInstitution.Id);
+                        var contact = _context.UnionInstitutionContact
+                            .FirstOrDefault(c => c.UnionInstitutionId == unionInstitution.Id);
+                        <RadzenCard>
+                            <div class="row">
+
+                                <div class="col-sm-4">
+                                    <RadzenButton ButtonStyle="ButtonStyle.Light" Size="ButtonSize.Medium" Class="m-1" Click="@(args => Users(unionInstitution))" @onclick:stopPropagation="true">
+                                        Użytkownicy
+                                        @*<RadzenBadge BadgeStyle="BadgeStyle.Primary">@usersCount</RadzenBadge>*@
+                                    </RadzenButton>
+                                </div>
+
+                            </div>
+                            <hr />
+                            <div class="row">
+                                <div class="col-sm-6">
+                                    <AddressComponent UnionInstitutionAddress="@address" UnionInstitution="unionInstitution" />
+                                </div>
+                                <div class="col-sm-6">
+                                    <ContactUnionComponent UnionInstitution="unionInstitution" UnionInstitutionContact="@contact" />
+                                </div>
+
+                            </div>
+
+
+
+                        </RadzenCard>
+                    }
+
+
+                }
+
+
+            </Template>
+            <Columns>
+                <RadzenDataGridColumn TItem="UnionInstitution" Property="FullName" Title="Nazwa" Width="500px">
+                    <Template Context="unionInstitution">
+                        @unionInstitution.FullName
+                    </Template>
+                    <EditTemplate Context="unionInstitution">
+
+                        <RadzenTextBox @bind-Value="unionInstitution.FullName" Style="width:100%; display: block" Name="fullName" Placeholder="Podaj pełną nazwę" />
+                        <RadzenRequiredValidator Text="Pole 'Pałna nazwa'' jest obowiązkowe" Component="fullName" />
+                    </EditTemplate>
+                </RadzenDataGridColumn>
+                <RadzenDataGridColumn TItem="UnionInstitution" Property="ShortName" Title="Nazwa skrócona">
+                    <Template Context="unionInstitution">
+                        @unionInstitution.ShortName
+                    </Template>
+                    <EditTemplate Context="unionInstitution">
+                        <RadzenTextBox @bind-Value="unionInstitution.ShortName" Style="width:100%; display: block" Name="shortName" Placeholder="Podaj nazwę skróconą" />
+                        <RadzenRequiredValidator Text="Pole 'Nazwa skrócona'' jest obowiązkowe" Component="shortName" />
+                    </EditTemplate>
+                </RadzenDataGridColumn>
+                <RadzenDataGridColumn TItem="UnionInstitution" Property="City" Title="Miasto">
+                    <Template Context="unionInstitution">
+                        @unionInstitution.City
+                    </Template>
+                    <EditTemplate Context="unionInstitution">
+                        <RadzenTextBox @bind-Value="unionInstitution.City" Style="width:100%; display: block" Name="city" Placeholder="Podaj miasto" />
+                        <RadzenRequiredValidator Text="Pole 'miasto' jest obowiązkowe" Component="city" />
+                    </EditTemplate>
+                </RadzenDataGridColumn>
+
+                <RadzenDataGridColumn TItem="UnionInstitution" Title="Akcje" Sortable="false">
+                    <Template Context="unionInstitution">
+                        <RadzenButton ButtonStyle="ButtonStyle.Info" Icon="info" Size="ButtonSize.Medium" Class="m-1" Click="@(args => Details(unionInstitution))" @onclick:stopPropagation="true" MouseEnter="@(args => ShowDetailsTooltip(args))">
+                        </RadzenButton>
+                        <RadzenButton Icon="edit" Size="ButtonSize.Medium" Click="@(args => EditRow(unionInstitution))" @onclick:stopPropagation="true" MouseEnter="@(args => ShowEditTooltip(args))" />
+                        <RadzenButton ButtonStyle="ButtonStyle.Danger" Icon="delete" Size="ButtonSize.Medium" Class="m-1" Click="@(args => ShowDeleteDialog(unionInstitution))" @onclick:stopPropagation="true" MouseEnter="@(args => ShowDeleteTooltip(args))">
+                        </RadzenButton>
+                    </Template>
+                    <EditTemplate Context="unionInstitution">
+                        <RadzenButton Icon="save" Size="ButtonSize.Medium" Click="@((args) => SaveRow(unionInstitution))" ButtonStyle="ButtonStyle.Success" MouseEnter="@(args => ShowSaveTooltip(args))" />
+                        <RadzenButton Icon="cancel" Size="ButtonSize.Medium" ButtonStyle="ButtonStyle.Secondary" Click="@((args) => CancelEdit(unionInstitution))" MouseEnter="@(args => ShowCancelTooltip(args))" />
+                    </EditTemplate>
+                </RadzenDataGridColumn>
+
+
+
+            </Columns>
+        </RadzenDataGrid>
+    }
+</div>
+
+
+
+
+
+
+
+@code {
+
+    RadzenDataGrid<UnionInstitution> unionInstitutionGrid;
+
+    RadzenButton radzenButton;
+
+    [Parameter]
+    public int? Id { get; set; }
+
+    private string Title = "";
+
+    public bool ProgressBarVisible { get; set; }
+
+    IEnumerable<UnionInstitution> GetUnionInstitutions;
+
+
+
+    public UnionInstitution MotherUnionInstitution { get; set; }
+
+    public TypeOfUnionInstitution TypeOfUnionInstitution { get; set; }
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        ProgressBarVisible = true;
+
+        using(var _context = _contextFactory.CreateDbContext())
+        {
+            MotherUnionInstitution = await _context.UnionInstitution
+                 .Include(u => u.TypeOfUnionInstitution)
+                 .FirstOrDefaultAsync(u => u.Id == Id);
+
+            TypeOfUnionInstitution = await _context.TypeOfUnionInstitution
+                .FirstOrDefaultAsync(t => t.Name == TypeOfUnionInstitutionSD.Branch);
+            GetUnionInstitutions = await _context.UnionInstitution
+                .Where(u => u.MotherInstitutionId == MotherUnionInstitution.Id).ToListAsync();
+        }
+
+
+        Title = $"{MotherUnionInstitution.ShortName} - Lista ognisk";
+
+        _dialogService.OnOpen += Open;
+        _dialogService.OnClose += Close;
+
+        ProgressBarVisible = false;
+
+    }
+
+
+    async Task Users(UnionInstitution unionInstitution)
+    {
+        _navigationManager.NavigateTo($"/admin/institution/UnionInstitutionUsersList/{unionInstitution.Id}");
+
+    }
+
+    async Task OnCreateRow(UnionInstitution unionInstitution)
+    {
+
+        unionInstitution.TypeOfUnionInstitutionId = TypeOfUnionInstitution.Id;
+        unionInstitution.MotherInstitutionId = MotherUnionInstitution.Id;
+
+        using(var _context = _contextFactory.CreateDbContext())
+        {
+            _context.Add(unionInstitution);
+            await _context.SaveChangesAsync();
+
+            MotherUnionInstitution = await _context.UnionInstitution
+               .Include(u => u.TypeOfUnionInstitution)
+               .FirstOrDefaultAsync(u => u.MotherInstitutionId == unionInstitution.MotherInstitutionId);
+
+            GetUnionInstitutions = await _context.UnionInstitution
+            .Where(u => u.MotherInstitutionId == unionInstitution.MotherInstitutionId).ToListAsync();
+        }
+
+        _notificationService.Notify(NotificationSeverity.Success, "Sukces", $"Dodano nowe ogniwo '{unionInstitution.FullName}'", 3000);
+
+    }
+
+
+    async Task SaveRow(UnionInstitution unionInstitution)
+    {
+        if (unionInstitution == unionInstitutionToInsert)
+        {
+
+            unionInstitutionToInsert = null;
+        }
+
+        await unionInstitutionGrid.UpdateRow(unionInstitution);
+    }
+
+    async Task OnUpdateRow(UnionInstitution unionInstitution)
+    {
+        if (unionInstitution == unionInstitutionToInsert)
+        {
+            unionInstitutionToInsert = null;
+        }
+
+        using(var _context = _contextFactory.CreateDbContext())
+        {
+            _context.Update(unionInstitution);
+
+            await _context.SaveChangesAsync();
+
+            GetUnionInstitutions = await _context.UnionInstitution
+            .Where(u => u.MotherInstitutionId == unionInstitution.MotherInstitutionId).ToListAsync();
+        }
+
+
+        _notificationService.Notify(NotificationSeverity.Success, "Sukces", "Dane zostały zaktualizowane", 3000);
+
+
+
+
+    }
+
+    async Task EditRow(UnionInstitution unionInstitution)
+    {
+        await unionInstitutionGrid.EditRow(unionInstitution);
+    }
+
+    async Task InsertRow()
+    {
+        unionInstitutionToInsert = new UnionInstitution();
+        await unionInstitutionGrid.InsertRow(unionInstitutionToInsert);
+    }
+
+    UnionInstitution unionInstitutionToInsert;
+
+
+    async Task CancelEdit(UnionInstitution unionInstitution)
+    {
+        if (unionInstitution == unionInstitutionToInsert)
+        {
+            unionInstitutionToInsert = null;
+        }
+
+        unionInstitutionGrid.CancelEditRow(unionInstitution);
+
+        using(var _context = _contextFactory.CreateDbContext())
+        {
+            var typeEntry = _context.Entry(unionInstitution);
+            if (typeEntry.State == EntityState.Modified)
+            {
+                typeEntry.CurrentValues.SetValues(typeEntry);
+                typeEntry.State = EntityState.Unchanged;
+            }
+        }
+
+    }
+
+
+    async Task Details(UnionInstitution unionInstitution)
+    {
+        _navigationManager.NavigateTo($"/admin/unionInstitutions/Details/{unionInstitution.Id}");
+    }
+
+
+    async Task ShowDeleteDialog(UnionInstitution unionInstitution)
+    {
+        var result = await _dialogService.OpenAsync("Uwaga", ds =>
+    @<div>
+        <h3 class="mb-4 text-danger">Czy na pewno chcesz usunąć '@unionInstitution.FullName'?</h3>
+        <div class="row">
+            <div class="col">
+                <RadzenButton Text="Usuń" Click="() => ds.Close(true)" Class="mr-1" ButtonStyle="ButtonStyle.Danger" />
+                <RadzenButton Text="Anuluj" Click="() => ds.Close(false)" ButtonStyle="ButtonStyle.Secondary" Class="mr-1" />
+            </div>
+        </div>
+    </div>);
+
+        if (result)
+        {
+            if (unionInstitution == unionInstitutionToInsert)
+            {
+                unionInstitutionToInsert = null;
+            }
+
+            using(var _context = _contextFactory.CreateDbContext())
+            {
+                _context.UnionInstitution.Remove(unionInstitution);
+
+                await _context.SaveChangesAsync();
+
+
+                GetUnionInstitutions = await _context.UnionInstitution
+                    .Where(u => u.MotherInstitutionId == unionInstitution.MotherInstitutionId).ToListAsync();
+            }
+
+
+            _notificationService.Notify(NotificationSeverity.Success, "Sukces", $"Pomyślnie usunięto '{unionInstitution.FullName}'", 3000);
+        }
+
+    }
+
+
+
+    void Open(string title, Type type, Dictionary<string, object> parameters, DialogOptions options) { }
+
+    void Close(dynamic result) { }
+
+    public void Dispose()
+    {
+        // The DialogService is a singleton so it is advisable to unsubscribe.
+        _dialogService.OnOpen -= Open;
+        _dialogService.OnClose -= Close;
+    }
+
+    void ShowEditTooltip(ElementReference elementReference, TooltipOptions options = null) => _tooltipService.Open(elementReference, "Edytuj", options);
+    void ShowCancelTooltip(ElementReference elementReference, TooltipOptions options = null) => _tooltipService.Open(elementReference, "Anuluj", options);
+    void ShowSaveTooltip(ElementReference elementReference, TooltipOptions options = null) => _tooltipService.Open(elementReference, "Zapisz", options);
+    void ShowDeleteTooltip(ElementReference elementReference, TooltipOptions options = null) => _tooltipService.Open(elementReference, "Usuń", options);
+    void ShowDetailsTooltip(ElementReference elementReference, TooltipOptions options = null) => _tooltipService.Open(elementReference, "Szczegóły", options);
+
+}
+
+
+
+
+

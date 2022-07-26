@@ -1,0 +1,118 @@
+﻿@page "/user/unionInstitutions/branchPages/editDefaultData/{branchId:int}"
+
+@inject IDbContextFactory<ApplicationDbContext> _contextFactory
+@inject NotificationService _notificationService
+@inject NavigationManager _navigationManager
+@inject IAccessService _accessService
+@inject IUnionInstitutionRepository _unionInstitutionRepository
+
+<div class="container">
+    @if (ProgressBarVisible)
+    {
+        <RadzenProgressBar Value="100" ShowValue="false" Mode="ProgressBarMode.Indeterminate" />
+    }
+    else
+    {
+        <Breadcrumb Title="@Title" />
+
+        <div class="row mt-5">
+            <div class="col-sm-8 offset-sm-2">
+                <div class="card p-5">
+                    @if (UnionInstitution == null)
+                    {
+                        <RadzenProgressBar Value="100" ShowValue="false" Mode="ProgressBarMode.Indeterminate" />
+                    }
+                    <EditForm Model="@UnionInstitution" OnValidSubmit="@Upsert">
+
+                        <DataAnnotationsValidator />
+
+                        <div class="form-group row">
+                            <div class="col-sm-12">
+                                <small class="text-secondary d-block">Pełna nazwa</small>
+                                <RadzenTextBox @bind-Value="UnionInstitution.FullName" Placeholder="np. Związek Nauczycielstwa Polskiego Oddział w Warszawie" Class="form-control" />
+                                <ValidationMessage For="() => UnionInstitution.FullName" />
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <div class="col-sm-6">
+                                <small class="text-secondary d-block">Nazwa skrócona</small>
+                                <RadzenTextBox @bind-Value="UnionInstitution.ShortName" Class="form-control" Placeholder="np. Warszawa Śródmieście" />
+                                <ValidationMessage For="() => UnionInstitution.ShortName" />
+                            </div>
+                            <div class="col-sm-6">
+                                <small class="text-secondary d-block">Miejscowość</small>
+                                <RadzenTextBox @bind-Value="UnionInstitution.City" Placeholder="np.Wawrzeńczyce Duże" Class="form-control" />
+                                <ValidationMessage For="() => UnionInstitution.City" />
+                            </div>
+
+
+                        </div>
+                        <div class="mt-3">
+                            <RadzenButton ButtonType="ButtonType.Submit" ButtonStyle="ButtonStyle.Success" Text="Zapisz" />
+                            <RadzenButton ButtonStyle="ButtonStyle.Secondary" Text="Anuluj" Click="BackToDetails" />
+
+                        </div>
+
+                    </EditForm>
+                </div>
+
+            </div>
+
+        </div>
+
+    }
+</div>
+
+
+
+
+@code {
+
+    [Parameter]
+    public int? branchId { get; set; }
+    private string Title = "";
+    public bool ProgressBarVisible { get; set; }
+    public UnionInstitution UnionInstitution { get; set; }
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        ProgressBarVisible = true;
+        #region checkAccess
+        if (branchId == null)
+        {
+            _navigationManager.NavigateTo("/NotFoundPage");
+        }
+        var result = await _accessService.AccessByInsitutionId(branchId);
+        if (result)
+        {
+            UnionInstitution = await _unionInstitutionRepository.GetUnionInstitutionById(branchId);
+        }
+        if (UnionInstitution == null)
+        {
+            _navigationManager.NavigateTo("/NotFoundPage");
+        }
+        #endregion
+        Title = "Edytuj dane podstawowe";
+        ProgressBarVisible = false;
+    }
+
+    async Task Upsert()
+    {
+        using (var _context = _contextFactory.CreateDbContext())
+        {
+            _context.UnionInstitution.Update(UnionInstitution);
+            await _context.SaveChangesAsync();
+        }
+        _notificationService.Notify(NotificationSeverity.Success, "Sukces", "Dane zostały zaktualizowane", 3000);
+        _navigationManager.NavigateTo($"/user/unionInstitutions/branchPages/Details/{branchId}");
+    }
+
+    async Task BackToDetails()
+    {
+        _navigationManager.NavigateTo($"/user/unionInstitutions/branchPages/Details/{branchId}");
+    }
+}
+
+
+

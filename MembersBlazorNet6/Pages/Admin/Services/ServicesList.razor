@@ -1,0 +1,29 @@
+﻿@page "/admin/services/servicesList"
+@inject NavigationManager _navigationManager
+
+<div class="container">
+    <Breadcrumb Title="@Title"></Breadcrumb>
+
+    <div class="row">
+        <div class="col-sm-3">
+            <RadzenCard>
+                <h3>Wiadomości wysłane</h3>
+                <RadzenButton Text="Przejdź" Click="@SendEmail" ButtonStyle="ButtonStyle.Info" Style="margin-bottom: 20px;" />
+            </RadzenCard>
+        </div>
+
+    </div>
+</div>
+
+
+@code {
+
+    [Parameter]
+    public string Title { get; set; } = "Lista ustawień";
+
+    async Task SendEmail()
+    {
+        _navigationManager.NavigateTo("/admin/services/sendEmailMessageList");
+    }
+}
+

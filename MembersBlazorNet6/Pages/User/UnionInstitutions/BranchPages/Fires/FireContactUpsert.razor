@@ -1,0 +1,134 @@
+﻿@*@page "/user/unionInstitutions/branchPages/fires/fireContactUpsert/contactEdit/{contactId:int}"
+    @page "/user/unionInstitutions/branchPages/fires/fireContactUpsert/contactCreate/{fireId:int}"
+    @inject IDbContextFactory<ApplicationDbContext> _contextFactory
+    @inject NotificationService _notificationService
+    @inject NavigationManager _navigationManager
+    @inject IAccessService _accessService
+    @inject IUnionInstitutionRepository _unionInstitutionRepository
+
+
+    <div class="container">
+        @if (ProgressBarVisible)
+        {
+            <RadzenProgressBar Value="100" ShowValue="false" Mode="ProgressBarMode.Indeterminate" />
+        }
+        else
+        {
+            <Breadcrumb Title="@Title" />
+            <div class="row mt-5">
+                <div class="col-sm-8 offset-sm-2">
+                    <div class="card p-5">
+                        <EditForm Model="@UnionInstitutionContact" OnValidSubmit="@Upsert">
+                            <DataAnnotationsValidator />
+                            <div class="form-group">
+                                <small class="text-secondary d-block">Telefon</small>
+                                <RadzenMask @bind-Value="UnionInstitutionContact.Phone" Mask="*********" CharacterPattern="[0-9]" Placeholder="np. 322332323" Class="form-control" />
+                                <ValidationMessage For="() => UnionInstitutionContact.Phone" />
+                            </div>
+                            <div class="form-group">
+                                <small class="text-secondary d-block">Email</small>
+                                <RadzenTextBox @bind-Value="UnionInstitutionContact.Email" Placeholder="np.aaa@test.pl" Class="form-control" />
+                                <ValidationMessage For="() => UnionInstitutionContact.Email" />
+                            </div>
+                            <div class="form-group">
+                                <small class="text-secondary d-block">Strona internetowa</small>
+                                <RadzenTextBox @bind-Value="UnionInstitutionContact.WWW" Placeholder="np.www.znp.edu.pl" Class="form-control" />
+                            </div>
+                            <div class="form-group">
+                                <small class="text-secondary d-block">Link do strony internetowej</small>
+                                <RadzenTextBox @bind-Value="UnionInstitutionContact.LinkWww" Placeholder="np.https://znp.edu.pl/" Class="form-control" />
+                            </div>
+                            <div class="mt-3">
+                                <RadzenButton ButtonType="ButtonType.Submit" ButtonStyle="ButtonStyle.Success" Text="Zapisz" />
+                                <RadzenButton ButtonStyle="ButtonStyle.Secondary" Text="Anuluj" Click="BackToDetails" />
+                            </div>
+                        </EditForm>
+                    </div>
+
+                </div>
+
+            </div>
+        }
+    </div>
+
+
+
+
+    @code {
+
+        private string Title = "";
+        [Parameter]
+        public int? fireId { get; set; }
+        [Parameter]
+        public int? contactId { get; set; }
+        public bool ProgressBarVisible { get; set; }
+        public UnionInstitution UnionInstitution { get; set; }
+        public UnionInstitution Fire { get; set; }
+        public UnionInstitutionContact UnionInstitutionContact { get; set; }
+
+        protected override async Task OnInitializedAsync()
+        {
+            ProgressBarVisible = true;
+            #region checkAccess
+            if (fireId != null)
+            {
+                Fire = await _unionInstitutionRepository.GetUnionInstitutionById(fireId);
+                Title = $"{Fire.FullName} - Dodaj dane kontaktowe";
+                UnionInstitution = await _accessService.AccessIsValid(Fire.MotherInstitutionId);
+                if (UnionInstitution == null)
+                {
+                    _navigationManager.NavigateTo("/NotFoundPage");
+                }
+                UnionInstitutionContact = new UnionInstitutionContact();
+                UnionInstitutionContact.UnionInstitutionId = fireId;
+            }
+
+            #endregion
+            if (contactId != null)
+            {
+                using (var _context = _contextFactory.CreateDbContext())
+                {
+                    UnionInstitutionContact = await _context.UnionInstitutionContact
+                        .Include(c => c.UnionInstitution)
+                        .FirstOrDefaultAsync(a => a.Id == UnionInstitutionContact.Id);
+                }
+                UnionInstitution = await _accessService.AccessIsValid(UnionInstitutionContact.UnionInstitution.MotherInstitutionId);
+                Title = $"{UnionInstitutionContact.UnionInstitution.FullName} - Edytuj dane kontaktowe";
+            }
+            ProgressBarVisible = false;
+        }
+
+        async Task Upsert()
+        {
+            if (fireId != null)
+            {
+                using (var _context = _contextFactory.CreateDbContext())
+                {
+                    _context.UnionInstitutionContact.Add(UnionInstitutionContact);
+                    await _context.SaveChangesAsync();
+                }
+                _notificationService.Notify(NotificationSeverity.Success, "Sukces", "Pomyślnie dodano dane kontaktowe.", 3000);
+                _navigationManager.NavigateTo("/user/unionInstitutions/branchPages/fireList");
+            }
+            else
+            {
+                using (var _context = _contextFactory.CreateDbContext())
+                {
+                    _context.UnionInstitutionContact.Update(UnionInstitutionContact);
+                    await _context.SaveChangesAsync();
+                }
+
+                _notificationService.Notify(NotificationSeverity.Success, "Sukces", "Dane zostały zaktualizowane", 3000);
+                _navigationManager.NavigateTo("/user/unionInstitutions/branchPages/fireList");
+            }
+        }
+
+        async Task BackToDetails()
+        {
+            _navigationManager.NavigateTo("/user/unionInstitutions/branchPages/fireList");
+        }
+    }*@
+
+
+
+

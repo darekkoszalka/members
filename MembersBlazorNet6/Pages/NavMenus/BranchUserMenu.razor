@@ -1,0 +1,67 @@
+﻿@inject NavigationManager _navigationManager
+
+<div class="top-row ps-3 navbar navbar-dark">
+    <div class="container-fluid">
+        <a class="navbar-brand" href="">Members</a>
+        <button title="Navigation menu" class="navbar-toggler" @onclick="ToggleNavMenu">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+    </div>
+</div>
+
+<div class="@NavMenuCssClass" @onclick="ToggleNavMenu">
+    <nav class="flex-column">
+        <div class="nav-item px-3">
+            <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
+                <span class="oi oi-home" aria-hidden="true"></span> Strona główna
+            </NavLink>
+        </div>
+        <div class="nav-item px-3">
+            <NavLink class="nav-link" href="@MyBranchLink">
+                <span class="oi oi-plus" aria-hidden="true"></span> Mój oddział
+            </NavLink>
+        </div>
+        <div class="nav-item px-3">
+            <NavLink class="nav-link" href="@FiresListLink">
+                <span class="oi oi-plus" aria-hidden="true"></span> Ogniska
+            </NavLink>
+        </div>
+        <div class="nav-item px-3">
+            <NavLink class="nav-link" href="@MembersLink">
+                <span class="oi oi-plus" aria-hidden="true"></span> Lista członków
+            </NavLink>
+        </div>
+        <div class="nav-item px-3">
+            <NavLink class="nav-link" href="@StructuresLink">
+                <span class="oi oi-plus" aria-hidden="true"></span> Struktury
+            </NavLink>
+        </div>
+    </nav>
+</div>
+
+@code {
+    [Parameter]
+    public int? BranchId { get; set; }
+    private bool collapseNavMenu = true;
+    private string? NavMenuCssClass => collapseNavMenu ? "collapse" : null;
+    //links
+    public string MyBranchLink { get; set; }
+    public string FiresListLink { get; set; }
+    public string StructuresLink { get; set; }
+    public string MembersLink { get; set; }
+
+    private void ToggleNavMenu()
+    {
+        collapseNavMenu = !collapseNavMenu;
+    }
+    protected async override Task OnInitializedAsync()
+    {
+        MyBranchLink = $"/user/unionInstitutions/branchPages/Details/{BranchId}";
+        FiresListLink = $"/user/unionInstitutions/branchPages/fireList/{BranchId}";
+        StructuresLink = $"/user/unionInstitution/branchPages/branchData/branchStructures/{BranchId}";
+        MembersLink = $"/user/unionInstitution/members/membersList/{BranchId}";
+    }
+
+
+}
+

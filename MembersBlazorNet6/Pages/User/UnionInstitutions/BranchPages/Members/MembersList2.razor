@@ -1,0 +1,702 @@
+﻿@*@page "/user/unionInstitution/members/membersList/{branchId:int}"
+    @page "/user/unionInstitution/members/membersList/fire/{fireId:int}/{branchId:int}"
+
+    @inject IDbContextFactory<ApplicationDbContext> _contextFactory
+    @inject NotificationService _notificationService
+    @inject TooltipService _tooltipService
+    @inject NavigationManager _navigationManager
+    @inject DialogService _dialogService
+    @inject IAccessService _accessService
+    @inject IMemberRepository _memberRepository
+    @inject IUnionInstitutionRepository _unionInstitutionRepository*@
+@*@implements IDisposable*@
+
+
+@*<div class="container">
+        @if (ProgressBarVisible)
+        {
+            <RadzenProgressBar Value="100" ShowValue="false" Mode="ProgressBarMode.Indeterminate" />
+        }
+        else
+        {
+            <Breadcrumb Title="@Title" />
+            @if (AddMemberButtonVisible)
+            {
+                <RadzenButton Text="Dodaj osobę" Icon="add_circle_outline" Click="@GoToMemberCreator" ButtonStyle="ButtonStyle.Primary" Style="margin-bottom: 20px;" />
+            }
+            <RadzenDataGrid @ref="@membersGrid" Data="@Members" TItem="Member" AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" AllowPaging="true" AllowSorting="true" FilterMode="FilterMode.Simple" ExpandMode="DataGridExpandMode.Single">
+                <EmptyTemplate>
+                    <p style="color: lightgrey; font-size: 24px; text-align: center; margin: 2rem;">Brak danych.</p>
+                </EmptyTemplate>
+                <Template Context="member">
+                    @{
+                        Member = member;
+                    }
+                    <div class="row">
+                        <div class="col-sm-6">
+                            <MemberDetailsComponent Member="Member" EditDetails="MemberEdit" />
+                        </div>
+                        <div class="col-sm-6 d-flex align-self-center">
+                            @using (var _context = _contextFactory.CreateDbContext())
+                            {
+                                var memberContact = _context.MemberContact
+                                        .Include(c => c.Member)
+                                        .FirstOrDefault(c => c.MemberId == member.Id);
+                                <MemberContactComponent Member="member" MemberContact="memberContact" AddContact="MemberContactCreate" EditContact="MemberContactEdit" />
+                            }
+                        </div>
+                    </div>
+                    <hr />
+                    <div class="row">
+                        <div class="col-12">
+                            @using (var _context = _contextFactory.CreateDbContext())
+                            {
+                                var functions = _context.UnionStructureFunction
+                                                                .Where(f => f.MemberId == member.Id)
+                                                                .Include(f => f.UnionFunctionType)
+                                                                .Include(f => f.UnionStrukture)
+                                                                .Include(f => f.UnionStrukture.UnionStructureType)
+                                                                .Include(f => f.UnionStrukture.UnionInstitution)
+                                                                .ToList();
+                                <MemberUnionFunctionComponent Functions="functions" />
+                            }
+                        </div>
+                    </div>
+                </Template>
+                <Columns>
+                    <RadzenDataGridColumn TItem="Member" Property="FullName" Title="Nazwisko i imię">
+                        <Template Context="member">
+                            @member.FullName
+                        </Template>
+                    </RadzenDataGridColumn>
+                    <RadzenDataGridColumn TItem="Member" Property="UnionIstitution.ShortName" Title="Ognisko">
+                        <Template Context="member">
+                            @member.UnionInstitution.ShortName
+                        </Template>
+                    </RadzenDataGridColumn>
+                    <RadzenDataGridColumn TItem="Member" Title="Akcje" Sortable="false">
+                        <Template Context="member">
+                            <RadzenButton Icon="money" Size="ButtonSize.Medium" ButtonStyle="ButtonStyle.Success" Click="@(args => Payment(member))" @onclick:stopPropagation="true" MouseEnter="@(args => ShowPaymentTooltip(args))" />
+                            <RadzenButton Icon="edit" Size="ButtonSize.Medium" Click="@(args => GoToMemberEdit(member.Id))" @onclick:stopPropagation="true" MouseEnter="@(args => ShowEditTooltip(args))" />
+                            <RadzenButton ButtonStyle="ButtonStyle.Danger" Icon="delete" Size="ButtonSize.Medium" Class="m-1" Click="@(args => ShowDeleteDialog(member))" @onclick:stopPropagation="true" MouseEnter="@(args => ShowDeleteTooltip(args))">
+                            </RadzenButton>
+                        </Template>
+                    </RadzenDataGridColumn>
+                </Columns>
+            </RadzenDataGrid>
+        }
+    </div>*@
+
+
+
+@code {
+
+    @*#region zmienne
+        [Parameter]
+        public int? fireId { get; set; }
+        [Parameter]
+        public int? branchId { get; set; }
+        public bool ProgressBarVisible { get; set; }
+        public bool AddMemberButtonVisible { get; set; } = false;
+        public UnionInstitution UnionInstitution { get; set; }
+        public MemberContact MemberContact { get; set; }
+        public Member Member { get; set; }
+        public IList<WorkPlace> WorkPlaces { get; set; }
+        public IList<Education> Educations { get; set; }
+        public IList<Member> Members { get; set; }
+        RadzenDataGrid<Member> membersGrid;
+        private string Title = "";
+        #endregion zmienne*@
+
+    #region funkcje
+    @*protected override async Task OnInitializedAsync()
+            {
+                ProgressBarVisible = true;
+                if (branchId == null)
+                {
+
+                    _navigationManager.NavigateTo("/NotFoundPage");
+                }
+                var result = await _accessService.AccessByInsitutionId(branchId);
+                if (!result)
+                {
+                    _navigationManager.NavigateTo("/NotFoundPage");
+                }
+                UnionInstitution = await _unionInstitutionRepository.GetUnionInstitutionById(branchId);
+                if (UnionInstitution == null)
+                {
+                    _navigationManager.NavigateTo("/NotFoundPage");
+                }
+
+                if (fireId != null)
+                {
+                    Members = await _memberRepository.GetMembersInFire(branchId);
+                    AddMemberButtonVisible = true;
+                }
+                else
+                {
+                    Members = await _memberRepository.GetMembersInBranch(branchId);
+                }
+
+                using (var _context = _contextFactory.CreateDbContext())
+                {
+                    WorkPlaces = await _context.WorkPlace
+                        .ToListAsync();
+                    Educations = await _context.Education
+                        .ToListAsync();
+                }
+                Title = $"{UnionInstitution.FullName} - lista członków ZNP";
+                _dialogService.OnOpen += Open;
+                _dialogService.OnClose += Close;
+                ProgressBarVisible = false;
+            }
+
+            async Task GoToMemberCreator()
+            {
+                _navigationManager.NavigateTo($"/user/unionInstitutions/branchPages/members/upsertMember/createMember/{UnionInstitution.Id}");
+            }
+
+            async Task GoToMemberEdit(int memberId)
+            {
+                _navigationManager.NavigateTo($"/user/unionInstitutions/branchPages/members/upsertMember/editMember/{memberId}");
+            }
+
+            async Task ShowDeleteDialog(Member member)
+            {
+                var result = await _dialogService.OpenAsync("Uwaga", ds =>
+            @<div>
+                <h3 class="mb-4 text-danger">Czy na pewno chcesz usunąć '@member.FullName'?</h3>
+                <div class="row">
+                    <div class="col">
+                        <RadzenButton Text="Usuń" Click="() => ds.Close(true)" Class="mr-1" ButtonStyle="ButtonStyle.Danger" />
+                        <RadzenButton Text="Anuluj" Click="() => ds.Close(false)" ButtonStyle="ButtonStyle.Secondary" Class="mr-1" />
+                    </div>
+                </div>
+            </div>,
+        new DialogOptions() { ShowClose = false });
+
+          if (result)
+          {
+              _memberRepository.Deletemember(member.Id);
+              Members = await _memberRepository.GetMembersInFire(UnionInstitution.Id);
+              _notificationService.Notify(NotificationSeverity.Success, "Sukces", $"Pomyślnie usunięto '{member.FullName}'", 3000);
+          }
+        }*@
+
+
+
+    @*void Open(string title, Type type, Dictionary<string, object> parameters, DialogOptions options) { }
+
+        void Close(dynamic result) { }
+
+        public void Dispose()
+        {
+          // The DialogService is a singleton so it is advisable to unsubscribe.
+          _dialogService.OnOpen -= Open;
+          _dialogService.OnClose -= Close;
+        }
+
+        void ShowEditTooltip(ElementReference elementReference, TooltipOptions options = null) => _tooltipService.Open(elementReference, "Edytuj", options);
+        void ShowDeleteTooltip(ElementReference elementReference, TooltipOptions options = null) => _tooltipService.Open(elementReference, "Usuń", options);
+        void ShowPaymentTooltip(ElementReference elementReference, TooltipOptions options = null) => _tooltipService.Open(elementReference, "Składki", options);
+
+        async Task MemberEdit(Member member)
+        {
+          _navigationManager.NavigateTo($"/user/unionInstitutions/branchPages/members/upsertMember/editMember/{member.Id}");
+        }
+
+        async Task Payment(Member member)
+        {
+          _navigationManager.NavigateTo($"/users/branchPages/members/memberPaymentList/{member.Id}");
+        }*@
+
+    @*async Task MemberEdit(Member member)
+        {
+          Member = member;
+          var result = await _dialogService.OpenAsync($"Edytujesz dane osoby {Member.FullName}", ds =>
+          <div>
+
+              <EditForm Model = "@Member" OnValidSubmit = "@MemberUpdate">
+
+                  < DataAnnotationsValidator />
+
+                  < div class="form-group row">
+          <div class="col-md-3">
+              <small class="text-secondary d-block">Imię*</small>
+              <RadzenTextBox @bind-Value="Member.FirstName" Placeholder="np. Irena" Class="form-control" />
+              <ValidationMessage For = "() => Member.FirstName" />
+          </ div >
+          < div class="col-md-3">
+              <small class="text-secondary d-block">Drugie imię</small>
+              <RadzenTextBox @bind-Value= "Member.SecondName" Placeholder= "np. Monika" Class= "form-control" />
+              < ValidationMessage For= "() => Member.SecondName" />
+          </ div >
+          < div class="col-md-6">
+              <small class="text-secondary d-block">Nazwisko*</small>
+              <RadzenTextBox @bind-Value="Member.LastName" Placeholder="np. Kowalska-Nowak" Class="form-control" />
+              <ValidationMessage For = "() => Member.LastName" />
+          </ div >
+        </ div >
+        < div class="form-group row">
+          <div class="col-md-4">
+              <small class="text-secondary d-block">Pesel*</small>
+              <RadzenMask @bind-Value="Member.Pesel" Placeholder="Wpisz nr pesel" Class="form-control" Mask="***********" CharacterPattern="[0-9]" />
+              <ValidationMessage For = "() => Member.Pesel" />
+          </ div >
+          < div class="col-md-4">
+              <small class="text-secondary d-block">Data przyjęcia do ZNP*</small>
+              <RadzenDatePicker @bind-Value="Member.StartDate" DateFormat="d" Class="w-100" />
+              <ValidationMessage For = "() => Member.StartDate" />
+          </ div >
+          < div class="col-md-4">
+              <small class="text-secondary d-block">Nr legitymacji</small>
+              <RadzenMask @bind-Value= "Member.UnionCard" Placeholder= "Wpisz nr legitymacji" Class= "form-control" Mask= "***********" CharacterPattern= "[0-9]" />
+              < ValidationMessage For= "() => Member.Pesel" />
+          </ div >
+        </ div >
+        < div class="form-group row">
+          <div class="col-md-6">
+              <small class="text-secondary d-block">Stanowisko pracy*</small>
+              <RadzenDropDown AllowClear = "true" AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" @bind-Value=@Member.MemberWorkPlaceId Placeholder = "Wybierz stanowisko z listy"
+                                  Data=@WorkPlaces TextProperty = "Name" ValueProperty="Id" Class="w-100" Change="@(args=>SelectWorkplace(Member.MemberWorkPlaceId))" />
+              <ValidationMessage For = "() => Member.MemberWorkPlaceId" />
+          </ div >
+          < div class="col-md-6">
+              <small class="text-secondary d-block">Wykształcenie*</small>
+              <RadzenDropDown AllowClear = "true" AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" @bind-Value=@Member.EducationId Placeholder = "Wybierz wykształcenie z listy"
+                                  Data=@Educations TextProperty = "Name" ValueProperty="Id" Class="w-100" Change="@(args=>SelectEducation(Member.EducationId))" />
+              <ValidationMessage For = "() => Member.EducationId" />
+          </ div >
+        </ div >
+        < RadzenButton ButtonType="ButtonType.Submit" ButtonStyle="ButtonStyle.Success" Text="Zapisz" Click="() => ds.Close(true)" />
+        <RadzenButton ButtonStyle = "ButtonStyle.Secondary" Text="Anuluj" Click="() => ds.Close(false)" />
+        </EditForm>
+        </div>,
+        new DialogOptions() { ShowClose = false, Width = "800px" });
+        if (result)
+        {
+        MemberUpdate();
+        }
+
+        }*@
+
+    @*void SelectWorkplace(int? memberWorkPlaceId)
+        {
+            Member.MemberWorkPlaceId = memberWorkPlaceId;
+        }
+
+        void SelectEducation(int? educationId)
+        {
+            Member.EducationId = educationId;
+        }
+
+        async Task MemberUpdate()
+        {
+            var result = await _memberRepository.UpdateMember(Member);
+            if (result)
+            {
+                _notificationService.Notify(NotificationSeverity.Success, "Sukces", $"Pomyślnie zmieniono dane osoby {Member.FullName}.", 3000);
+            }
+            else
+            {
+                _notificationService.Notify(NotificationSeverity.Error, "Błąd", $"Dane osoby {Member.FullName} nie zostały zmienione.", 3000);
+                return;
+            }
+        }*@
+
+
+    @*async Task MemberContactCreate(Member member)
+        {
+            MemberContact = new MemberContact();
+            MemberContact.MemberId = member.Id;
+            var result = await _dialogService.OpenAsync($"Dodaj dane kontaktowe do {member.FullName}", ds =>
+
+
+
+            < div >
+
+
+
+
+            < div class= "row" >
+        < div class= "col" >
+        < EditForm Model = "@MemberContact" OnValidSubmit = "@CreateContact" >
+
+
+        < DataAnnotationsValidator />
+
+        < div class= "form-group" >
+
+        < small class= "text-secondary d-block" > Telefon</ small>
+
+        < RadzenMask @bind - Value = "MemberContact.Phone" Mask = "*********" CharacterPattern = "[0-9]" Placeholder = "np. 322332323" Class = "form-control" />
+
+                 < ValidationMessage For = "() => MemberContact.Phone" />
+
+              </ div >
+
+              < div class= "form-group" >
+
+                  < small class= "text-secondary d-block" > Email</ small>
+
+                   < RadzenTextBox @bind - Value = "MemberContact.Email" Placeholder = "np.aaa@test.pl" Class = "form-control" />
+
+                          < ValidationMessage For = "() => MemberContact.Email" />
+
+                       </ div >
+
+                       < div class= "form-group row" >
+
+                           < div class= "col-sm-6" >
+
+                                < small class= "text-secondary d-block" > Ulica</ small>
+
+                                 < RadzenTextBox @bind - Value = "MemberContact.Street" Placeholder = "np. Michaela Jacksona" Class = "form-control" />
+
+                                        < ValidationMessage For = "() => MemberContact.Street" />
+
+                                     </ div >
+
+                                     < div class= "col-sm-3" >
+
+                                         < small class= "text-secondary d-block" > nr domu</ small >
+
+                                             < RadzenTextBox @bind - Value = "MemberContact.HouseNumber" Placeholder = "np.12m" Class = "form-control" />
+
+                                                  < ValidationMessage For = "() => MemberContact.HouseNumber" />
+
+                                              </ div >
+
+                                              < div class= "col-sm-3" >
+
+                                                  < small class= "text-secondary d-block" > nr lok.</ small >
+
+                                                      < RadzenTextBox @bind - Value = "MemberContact.ApartamentNumber" Placeholder = "np.10" Class = "form-control" />
+
+                                                       </ div >
+
+
+                                                   </ div >
+
+                                                   < div class= "form-group row" >
+
+                                                       < div class= "col-sm-2" >
+
+                                                            < small class= "text-secondary d-block" > Kod pocztowy</ small >
+
+                                                                < RadzenMask @bind - Value = "MemberContact.PostCode" Mask = "**-***" CharacterPattern = "[0-9]" Placeholder = "00-000" Class = "form-control" />
+
+                                                                       < ValidationMessage For = "() => MemberContact.PostCode" />
+
+                                                                   </ div >
+
+                                                                   < div class= "col-sm-5" >
+
+                                                                       < small class= "text-secondary d-block" > Miejscowość</ small>
+
+                                                                        < RadzenTextBox @bind - Value = "MemberContact.City" Placeholder = "np.Wawrzeńczyce Duże" Class = "form-control" />
+
+                                                                               < ValidationMessage For = "() => MemberContact.City" />
+
+                                                                            </ div >
+
+                                                                            < div class= "col-sm-5" >
+
+                                                                                < small class= "text-secondary d-block" > Poczta</ small>
+
+                                                                                 < RadzenTextBox @bind - Value = "MemberContact.PostCity" Placeholder = "np.Wawrzeńczyce" Class = "form-control" />
+
+                                                                                        < ValidationMessage For = "() => MemberContact.PostCity" />
+
+                                                                                     </ div >
+
+
+                                                                                 </ div >
+
+                                                                                 < div class= "mt-3" >
+
+                                                                                     < RadzenButton ButtonType = "ButtonType.Submit" Click = "() => ds.Close(true)" ButtonStyle = "ButtonStyle.Success" Text = "Zapisz" />
+
+
+                                                                                          < RadzenButton ButtonStyle = "ButtonStyle.Secondary" Click = "() => ds.Close(false)" Text = "Anuluj" />
+
+
+                                                                                         </ div >
+
+
+                                                                                     </ EditForm >
+
+
+                                                                                     </ div >
+                                                                                     </ div >
+                                                                                     </ div >,
+        new DialogOptions() { ShowClose = false, Width = "800px" });
+        if (result)
+        {
+        _notificationService.Notify(NotificationSeverity.Success, "Sukces", $"Pomyślnie dodano dane kontaktowe '{member.FullName}'", 3000);
+        }
+        }*@
+
+    @*async Task MemberContactEdit(MemberContact memberContact)
+        {
+        MemberContact = memberContact;
+        var result = await _dialogService.OpenAsync($"Edytuj dane kontaktowe do {memberContact.Member.FullName}", ds =>
+        < div >
+        < div class= "row" >
+
+
+
+        < div class= "col" >
+
+
+
+        < EditForm Model = "@MemberContact" OnValidSubmit = "@UpdateContact" >
+
+
+
+        < DataAnnotationsValidator />
+
+
+
+        < div class= "form-group row" >
+
+
+
+            < div class= "col-sm-6" >
+
+
+
+                 < small class= "text-secondary d-block" > Telefon </ small >
+
+
+
+                  < RadzenMask @bind - Value = "MemberContact.Phone" Mask = "*********" CharacterPattern = "[0-9]" Placeholder = "np. 322332323" Class = "form-control" />
+
+
+
+                             < ValidationMessage For = "() => MemberContact.Phone" />
+
+
+
+                          </ div >
+
+
+
+                          < div class= "col-sm-6" >
+
+
+
+                               < small class= "text-secondary d-block" > Email </ small >
+
+
+
+                                < RadzenTextBox @bind - Value = "MemberContact.Email" Placeholder = "np.aaa@test.pl" Class = "form-control" />
+
+
+
+                                       < ValidationMessage For = "() => MemberContact.Email" />
+
+
+
+                                    </ div >
+
+
+
+                                </ div >
+
+
+
+                                < div class= "form-group row" >
+
+
+
+                                     < div class= "col-sm-6" >
+
+
+
+                                          < small class= "text-secondary d-block" > Ulica </ small >
+
+
+
+                                           < RadzenTextBox @bind - Value = "MemberContact.Street" Placeholder = "np. Michaela Jacksona" Class = "form-control" />
+
+
+
+                                                  < ValidationMessage For = "() => MemberContact.Street" />
+
+
+
+                                               </ div >
+
+
+
+                                               < div class= "col-sm-3" >
+
+
+
+                                                    < small class= "text-secondary d-block" > nr domu </ small >
+
+
+
+                                                        < RadzenTextBox @bind - Value = "MemberContact.HouseNumber" Placeholder = "np.12m" Class = "form-control" />
+
+
+
+                                                               < ValidationMessage For = "() => MemberContact.HouseNumber" />
+
+
+
+                                                            </ div >
+
+
+
+                                                            < div class= "col-sm-3" >
+
+
+
+                                                                 < small class= "text-secondary d-block" > nr lok.</ small >
+
+
+
+                                                                     < RadzenTextBox @bind - Value = "MemberContact.ApartamentNumber" Placeholder = "np.10" Class = "form-control" />
+
+
+
+                                                                        </ div >
+
+
+
+                                                                    </ div >
+
+
+
+                                                                    < div class= "form-group row" >
+
+
+
+                                                                         < div class= "col-sm-2" >
+
+
+
+                                                                              < small class= "text-secondary d-block" > Kod pocztowy </ small >
+
+
+
+                                                                                  < RadzenMask @bind - Value = "MemberContact.PostCode" Mask = "**-***" CharacterPattern = "[0-9]" Placeholder = "00-000" Class = "form-control" />
+
+
+
+                                                                                             < ValidationMessage For = "() => MemberContact.PostCode" />
+
+
+
+                                                                                          </ div >
+
+
+
+                                                                                          < div class= "col-sm-5" >
+
+
+
+                                                                                               < small class= "text-secondary d-block" > Miejscowość </ small >
+
+
+
+                                                                                                < RadzenTextBox @bind - Value = "MemberContact.City" Placeholder = "np.Wawrzeńczyce Duże" Class = "form-control" />
+
+
+
+                                                                                                       < ValidationMessage For = "() => MemberContact.City" />
+
+
+
+                                                                                                    </ div >
+
+
+
+                                                                                                    < div class= "col-sm-5" >
+
+
+
+                                                                                                         < small class= "text-secondary d-block" > Poczta </ small >
+
+
+
+                                                                                                          < RadzenTextBox @bind - Value = "MemberContact.PostCity" Placeholder = "np.Wawrzeńczyce" Class = "form-control" />
+
+
+
+                                                                                                                 < ValidationMessage For = "() => MemberContact.PostCity" />
+
+
+
+                                                                                                              </ div >
+
+
+
+
+                                                                                                          </ div >
+
+
+
+                                                                                                          < div class= "mt-3" >
+
+
+
+                                                                                                               < RadzenButton ButtonType = "ButtonType.Submit" Click = "() => ds.Close(true)" ButtonStyle = "ButtonStyle.Success" Text = "Zapisz" />
+
+
+
+
+                                                                                                                      < RadzenButton ButtonStyle = "ButtonStyle.Secondary" Click = "() => ds.Close(false)" Text = "Anuluj" />
+
+
+
+
+                                                                                                                       </ div >
+
+
+
+
+                                                                                                                   </ EditForm >
+
+
+
+
+                                                                                                               </ div >
+
+
+
+                                                                                                           </ div >
+
+
+
+                                                                                                       </ div >,
+        new DialogOptions() { ShowClose = false, Width = "800px" });
+        if (result)
+        {
+        _notificationService.Notify(NotificationSeverity.Success, "Sukces", $"Pomyślnie zmieniono dane kontaktowe '{memberContact.Member.FullName}'", 3000);
+        }
+        }*@
+
+    @*async Task CreateContact()
+        {
+            using (var _context = _contextFactory.CreateDbContext())
+            {
+                _context.MemberContact.Add(MemberContact);
+
+                await _context.SaveChangesAsync();
+            }
+        }
+
+        async Task UpdateContact()
+        {
+            using (var _context = _contextFactory.CreateDbContext())
+            {
+                _context.MemberContact.Update(MemberContact);
+
+                await _context.SaveChangesAsync();
+            }
+        }*@
+    #endregion funkcje
+}

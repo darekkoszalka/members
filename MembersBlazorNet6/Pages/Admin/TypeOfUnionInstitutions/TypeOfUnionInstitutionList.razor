@@ -1,0 +1,232 @@
+﻿@page "/admin/typeOfUnionInstitutionList"
+@inject IDbContextFactory<ApplicationDbContext> _contextFactory
+@inject NotificationService _notificationService
+@inject TooltipService _tooltipService
+@inject NavigationManager _navigationManager
+@inject DialogService _dialogService
+
+<div class="container">
+    
+    <h3>Typy ogniw ZNP</h3>
+    @if (GetTypeOfUnionInstitutions == null)
+    {
+        <RadzenCard>
+
+            <RadzenProgressBar Value="100" ShowValue="false" Mode="ProgressBarMode.Indeterminate" />
+        </RadzenCard>
+    }
+    else
+    {
+        <RadzenButton Text="Dodaj nowy typ" Icon="add_circle_outline" Click="@InsertRow" ButtonStyle="ButtonStyle.Primary" Style="margin-bottom: 20px;" Disabled=@(typeOfUnionInstitutionToInsert != null) />
+
+        <RadzenDataGrid @ref="@typeOfunionInstitutionGrid" Data="@GetTypeOfUnionInstitutions" TItem="TypeOfUnionInstitution" AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" AllowPaging="true" AllowSorting="true" FilterMode="FilterMode.Simple" EditMode="DataGridEditMode.Single" RowUpdate="@OnUpdateRow" RowCreate="@OnCreateRow">
+
+            <EmptyTemplate>
+                <p style="color: lightgrey; font-size: 24px; text-align: center; margin: 2rem;">Brak danych.</p>
+            </EmptyTemplate>
+            <Columns>
+                <RadzenDataGridColumn TItem="TypeOfUnionInstitution" Property="Name" Title="Nazwa">
+                    <Template Context="typeOfUnionInstitution">
+                        @typeOfUnionInstitution.Name
+                    </Template>
+                    <EditTemplate Context="typeOfUnionInstitution">
+
+                        <RadzenTextBox @bind-Value="typeOfUnionInstitution.Name" Style="width:100%; display: block" Name="typeName" Placeholder="Podaj nazwę" />
+                        <RadzenRequiredValidator Text="Pole nazwa jest obowiązkowe" Component="typeName" Popup="true" />
+                    </EditTemplate>
+                </RadzenDataGridColumn>
+                <RadzenDataGridColumn TItem="TypeOfUnionInstitution" Property="UnionInstitutions" Title="Lista">
+                    <Template Context="typeOfUnionInstitution">
+                        @typeOfUnionInstitution.UnionInstitutions.Count
+                    </Template>
+                    <EditTemplate></EditTemplate>
+                </RadzenDataGridColumn>
+                <RadzenDataGridColumn Width="160px" TItem="TypeOfUnionInstitution" Title="Akcje" Sortable="false">
+                    <Template Context="typeOfUnionInstitution">
+                        <RadzenButton Icon="edit" Size="ButtonSize.Medium" Click="@(args => EditRow(typeOfUnionInstitution))" @onclick:stopPropagation="true" MouseEnter="@(args => ShowEditTooltip(args))" />
+                    </Template>
+                    <EditTemplate Context="typeOfUnionInstitution">
+                        <RadzenButton Icon="save" Size="ButtonSize.Medium" Click="@((args) => SaveRow(typeOfUnionInstitution))" ButtonStyle="ButtonStyle.Success" MouseEnter="@(args => ShowSaveTooltip(args))" />
+                        <RadzenButton Icon="cancel" Size="ButtonSize.Medium" ButtonStyle="ButtonStyle.Secondary" Click="@((args) => CancelEdit(typeOfUnionInstitution))" MouseEnter="@(args => ShowCancelTooltip(args))" />
+                    </EditTemplate>
+                </RadzenDataGridColumn>
+                <RadzenDataGridColumn TItem="TypeOfUnionInstitution" Context="typeOfUnionInstitution" Filterable="false" Sortable="false" TextAlign="TextAlign.Center" Width="60px">
+                    <Template Context="typeOfUnionInstitution">
+                        <RadzenButton ButtonStyle="ButtonStyle.Danger" Icon="delete" Size="ButtonSize.Medium" Class="m-1" Click="@(args => ShowDeleteDialog(typeOfUnionInstitution))" @onclick:stopPropagation="true" MouseEnter="@(args => ShowDeleteTooltip(args))">
+                        </RadzenButton>
+                    </Template>
+                    <EditTemplate Context="typeOfUnionInstitution">
+                        <RadzenButton ButtonStyle="ButtonStyle.Danger" Icon="delete" Size="ButtonSize.Medium" Class="m-1" Click="@(args => ShowDeleteDialog(typeOfUnionInstitution))" MouseEnter="@(args => ShowDeleteTooltip(args))">
+                        </RadzenButton>
+                    </EditTemplate>
+                </RadzenDataGridColumn>
+
+            </Columns>
+        </RadzenDataGrid>
+    }
+</div>
+    @code {
+    
+
+
+    RadzenDataGrid<TypeOfUnionInstitution> typeOfunionInstitutionGrid;
+    RadzenButton radzenButton;
+
+    IEnumerable<TypeOfUnionInstitution> GetTypeOfUnionInstitutions;
+
+    protected override async Task OnInitializedAsync()
+    {
+        using(var _context = _contextFactory.CreateDbContext())
+        {
+            GetTypeOfUnionInstitutions = await _context.TypeOfUnionInstitution
+            .Include(t => t.UnionInstitutions)
+            .ToListAsync();
+        }
+
+        _dialogService.OnOpen += Open;
+        _dialogService.OnClose += Close;
+
+    }
+
+    async Task ShowDeleteDialog(TypeOfUnionInstitution typeOfUnionInstitution)
+    {
+        var result = await _dialogService.OpenAsync("Uwaga", ds =>
+    @<div>
+         <h3 class="mb-4 text-danger">Czy na pewno chcesz usunąć '@typeOfUnionInstitution.Name'?</h3>
+        <div class="row">
+            <div class="col">
+                <RadzenButton Text="Usuń" Click="() => ds.Close(true)" Class="mr-1" ButtonStyle="ButtonStyle.Danger"/>
+                <RadzenButton Text="Anuluj" Click="() => ds.Close(false)" ButtonStyle="ButtonStyle.Secondary" Class="mr-1" />
+            </div>
+        </div>
+    </div>);
+
+        if(result)
+        {
+            using(var _context = _contextFactory.CreateDbContext())
+            {
+                _context.TypeOfUnionInstitution.Remove(typeOfUnionInstitution);
+
+                await _context.SaveChangesAsync();
+
+                GetTypeOfUnionInstitutions = await _context.TypeOfUnionInstitution
+                    .Include(t => t.UnionInstitutions)
+                    .ToListAsync();
+            }
+
+
+            _notificationService.Notify(NotificationSeverity.Success, "Sukces", $"Pomyślnie usunięto typ '{typeOfUnionInstitution.Name}'", 3000);
+        }
+
+    }
+
+
+
+    void Open(string title, Type type, Dictionary<string, object> parameters, DialogOptions options)
+    {
+
+    }
+
+    void Close(dynamic result)
+    {
+
+    }
+
+    public void Dispose()
+    {
+        // The DialogService is a singleton so it is advisable to unsubscribe.
+        _dialogService.OnOpen -= Open;
+        _dialogService.OnClose -= Close;
+    }
+
+
+
+    void ShowEditTooltip(ElementReference elementReference, TooltipOptions options = null) => _tooltipService.Open(elementReference, "Edytuj", options);
+    void ShowCancelTooltip(ElementReference elementReference, TooltipOptions options = null) => _tooltipService.Open(elementReference, "Anuluj", options);
+    void ShowSaveTooltip(ElementReference elementReference, TooltipOptions options = null) => _tooltipService.Open(elementReference, "Zapisz", options);
+    void ShowDeleteTooltip(ElementReference elementReference, TooltipOptions options = null) => _tooltipService.Open(elementReference, "Usuń", options);
+
+
+    async Task EditRow(TypeOfUnionInstitution typeOfUnionInstitution)
+    {
+        await typeOfunionInstitutionGrid.EditRow(typeOfUnionInstitution);
+    }
+
+    async Task OnUpdateRow(TypeOfUnionInstitution typeOfUnionInstitution)
+    {
+        using(var _context = _contextFactory.CreateDbContext())
+        {
+            _context.Update(typeOfUnionInstitution);
+
+            await _context.SaveChangesAsync();
+            GetTypeOfUnionInstitutions = await _context.TypeOfUnionInstitution
+            .Include(t => t.UnionInstitutions)
+            .ToListAsync();
+        }
+
+
+        _notificationService.Notify(NotificationSeverity.Success, "Sukces", "Dane zostały zaktualizowane", 3000);
+
+
+    }
+
+    async Task SaveRow(TypeOfUnionInstitution typeOfUnionInstitution)
+    {
+        if (typeOfUnionInstitution == typeOfUnionInstitutionToInsert)
+        {
+            typeOfUnionInstitutionToInsert = null;
+        }
+
+        await typeOfunionInstitutionGrid.UpdateRow(typeOfUnionInstitution);
+    }
+
+    TypeOfUnionInstitution typeOfUnionInstitutionToInsert;
+
+    async Task OnCreateRow(TypeOfUnionInstitution typeOfUnionInstitution)
+    {
+        using(var _context = _contextFactory.CreateDbContext())
+        {
+            _context.Add(typeOfUnionInstitution);
+            await _context.SaveChangesAsync();
+            GetTypeOfUnionInstitutions = await _context.TypeOfUnionInstitution
+            .Include(t => t.UnionInstitutions)
+            .ToListAsync();
+        }
+
+        _notificationService.Notify(NotificationSeverity.Success, "Sukces", $"Dodano nowy typ '{typeOfUnionInstitution.Name}'", 3000);
+
+
+
+    }
+
+    async Task CancelEdit(TypeOfUnionInstitution typeOfUnionInstitution)
+    {
+        if (typeOfUnionInstitution == typeOfUnionInstitutionToInsert)
+        {
+            typeOfUnionInstitutionToInsert = null;
+        }
+
+        typeOfunionInstitutionGrid.CancelEditRow(typeOfUnionInstitution);
+
+        // For production
+        using(var _context = _contextFactory.CreateDbContext())
+        {
+            var typeEntry = _context.Entry(typeOfUnionInstitution);
+            if (typeEntry.State == EntityState.Modified)
+            {
+                typeEntry.CurrentValues.SetValues(typeEntry);
+                typeEntry.State = EntityState.Unchanged;
+            }
+        }
+
+    }
+
+    async Task InsertRow()
+    {
+        typeOfUnionInstitutionToInsert = new TypeOfUnionInstitution();
+        await typeOfunionInstitutionGrid.InsertRow(typeOfUnionInstitutionToInsert);
+    }
+
+
+}
+

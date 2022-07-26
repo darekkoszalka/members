@@ -1,0 +1,684 @@
+﻿@page "/user/unionInstitutions/branchPages/fireList/{branchId:int}"
+
+@inject IDbContextFactory<ApplicationDbContext> _contextFactory
+@inject NotificationService _notificationService
+@inject TooltipService _tooltipService
+@inject NavigationManager _navigationManager
+@inject DialogService _dialogService
+@inject IAccessService _accessService
+@inject IUnionInstitutionRepository _unionInstitutionRepository
+@inject IMemberRepository _memberRepository
+@inject IUnionStructureRepository _unionStructureRepository
+
+<div class="container">
+    @if (ProgressBarVisible)
+    {
+        <RadzenProgressBar Value="100" ShowValue="false" Mode="ProgressBarMode.Indeterminate" />
+    }
+    else
+    {
+        <Breadcrumb Title="@Title" />
+        <RadzenButton Text="Dodaj nowe" Icon="add_circle_outline" Click="@InsertRow" ButtonStyle="ButtonStyle.Primary" Style="margin-bottom: 20px;" Disabled=@(unionInstitutionToInsert != null) />
+
+        <RadzenDataGrid @ref="@unionInstitutionGrid" Data="@FiresList" TItem="UnionInstitution" AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" AllowPaging="true" AllowSorting="true" FilterMode="FilterMode.Simple" EditMode="DataGridEditMode.Single" RowUpdate="@OnUpdateRow" RowCreate="@OnCreateRow" ExpandMode="DataGridExpandMode.Single">
+            <EmptyTemplate>
+                <p style="color: lightgrey; font-size: 24px; text-align: center; margin: 2rem;">Brak danych.</p>
+            </EmptyTemplate>
+            <Template Context="unionInstitution">
+                @{
+                    using (var _context = _contextFactory.CreateDbContext())
+                    {
+                        var address = _context.UnionInstitutionAddress
+                           .FirstOrDefault(a => a.UnionInstitutionId == unionInstitution.Id);
+                        var contact = _context.UnionInstitutionContact
+                            .FirstOrDefault(c => c.UnionInstitutionId == unionInstitution.Id);
+                        UnionStructure = _context.UnionStructure
+                            .Include(s => s.UnionStructureType)
+                            .FirstOrDefault(s => s.UnionInstitutionId == unionInstitution.Id && s.UnionStructureType.Name == UnionStructureSD.Management);
+                        var membersInStructure = _context.UnionStructureFunction
+                            .Where(s => s.UnionStructureId == UnionStructure.Id)
+                            .Include(s => s.UnionFunctionType)
+                            .Include(s => s.Member)
+                            .ToList();
+                        <div class="row">
+                            <div class="col-12">
+                                <RadzenCard class="text-wrap">
+                                    <div class="d-flex justify-content-between">
+                                        <h4>@UnionStructure.UnionStructureType.Name</h4>
+                                        <RadzenButton ButtonStyle="ButtonStyle.Secondary" Text="Dodaj osobę" Click="SearchMember" Disabled="@(AddMemberToStructureBtnVisible == false)" />
+                                    </div>
+                                    <hr />
+
+                                    @foreach (var item in membersInStructure)
+                                    {
+                                        <p>@item.Member.FullName - @item.UnionFunctionType.Name</p>
+                                    }
+                                    @if (SearchMemberFormVisible)
+                                    {
+                                        <RadzenCard class="mt-3">
+                                            <h3>@UnionStructure.UnionStructureType.Name - dodaj nową osobę</h3>
+                                            <EditForm Model="SearchMemberByPeselModel" OnValidSubmit="SearchMemberByPesel">
+                                                <DataAnnotationsValidator />
+                                                <div class="form-group row my-3">
+                                                    <div class="col-md-6">
+                                                        <small class="text-secondary d-block">Podaj nr Pesel osoby*</small>
+                                                        <RadzenMask @bind-Value="SearchMemberByPeselModel.Pesel" Placeholder="Wpisz nr pesel" Class="form-control" Mask="***********" CharacterPattern="[0-9]" />
+                                                        <ValidationMessage For="() => SearchMemberByPeselModel.Pesel" />
+                                                    </div>
+                                                </div>
+                                                <div class="form group col-md-6">
+                                                    <RadzenButton ButtonType="ButtonType.Submit" ButtonStyle="ButtonStyle.Success" Text="Wyszukaj" />
+                                                    <RadzenButton ButtonStyle="ButtonStyle.Secondary" Text="Anuluj" Click="@NoAddMemberToStructure" />
+                                                </div>
+                                            </EditForm>
+                                        </RadzenCard>
+                                    }
+                                    @if (AddSearchedMemberVisible)
+                                    {
+                                        <div class="row my-5">
+                                            <div class="col-sm-8 offset-sm-2">
+                                                <RadzenCard>
+                                                    <div class="text-center">
+                                                        <h4>@UnionStructure.UnionStructureType.Name - dodajesz osobę:</h4>
+                                                        <p>@Member.FullName</p>
+                                                    </div>
+                                                    <EditForm Model="UnionStructureFunction" OnValidSubmit="CreateStructureFunction">
+                                                        <DataAnnotationsValidator />
+                                                        <div class="form-group row">
+                                                            <div class="col-md-6">
+                                                                <small class="text-secondary d-block">Funkcja*</small>
+                                                                <RadzenDropDown AllowClear="true" AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" @bind-Value=@UnionStructureFunction.UnionFunctionTypeId Placeholder="Wybierz funkcję"
+                                                                                Data=@UnionFunctionTypes TextProperty="Name" ValueProperty="Id" Class="w-100" />
+                                                                <ValidationMessage For="() => UnionStructureFunction.UnionFunctionTypeId" />
+                                                            </div>
+                                                        </div>
+                                                        <RadzenButton ButtonType="ButtonType.Submit" ButtonStyle="ButtonStyle.Success" Text="Zapisz" />
+                                                        <RadzenButton ButtonStyle="ButtonStyle.Secondary" Text="Anuluj" Click="@NoSaveMemberToStructure" />
+                                                    </EditForm>
+                                                </RadzenCard>
+                                            </div>
+
+                                        </div>
+                                    }
+
+                                </RadzenCard>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-sm-6">
+                                <RadzenCard>
+                                    <h4>Adres</h4>
+                                    @if (AddressEditFormVisible)
+                                    {
+                                        <EditForm Model="@FireAddress" OnValidSubmit="@FireAddressUpsert">
+
+                                            <DataAnnotationsValidator />
+
+                                            <div class="form-group">
+                                                <small class="text-secondary d-block">Ulica</small>
+                                                <RadzenTextBox @bind-Value="FireAddress.Street" Placeholder="np. Michaela Jacksona" Class="form-control" />
+                                                <ValidationMessage For="() => FireAddress.Street" />
+                                            </div>
+                                            <div class="form-group row">
+                                                <div class="col-sm-3">
+                                                    <small class="text-secondary d-block">nr domu</small>
+                                                    <RadzenTextBox @bind-Value="FireAddress.HouseNumber" Placeholder="np.12m" Class="form-control" />
+                                                    <ValidationMessage For="() => FireAddress.HouseNumber" />
+                                                </div>
+                                                <div class="col-sm-3">
+                                                    <small class="text-secondary d-block">nr lok.</small>
+                                                    <RadzenTextBox @bind-Value="FireAddress.ApartamentNumber" Placeholder="np.10" Class="form-control" />
+                                                </div>
+                                                <div class="col-sm-6">
+                                                    <small class="text-secondary d-block">Kod pocztowy</small>
+                                                    <RadzenMask @bind-Value="FireAddress.PostCode" Mask="**-***" CharacterPattern="[0-9]" Placeholder="00-000" Class="form-control" />
+                                                    <ValidationMessage For="() => FireAddress.PostCode" />
+                                                </div>
+                                            </div>
+
+                                            <div class="form-group row">
+
+                                                <div class="col-sm-6">
+                                                    <small class="text-secondary d-block">Miejscowość</small>
+                                                    <RadzenTextBox @bind-Value="FireAddress.City" Placeholder="np.Wawrzeńczyce Duże" Class="form-control" />
+                                                    <ValidationMessage For="() => FireAddress.City" />
+                                                </div>
+                                                <div class="col-sm-6">
+                                                    <small class="text-secondary d-block">Poczta</small>
+                                                    <RadzenTextBox @bind-Value="FireAddress.PostCity" Placeholder="np.Wawrzeńczyce" Class="form-control" />
+                                                    <ValidationMessage For="() => FireAddress.PostCity" />
+                                                </div>
+
+                                            </div>
+                                            <div class="mt-3">
+                                                <RadzenButton ButtonType="ButtonType.Submit" ButtonStyle="ButtonStyle.Success" Text="Zapisz" />
+                                                <RadzenButton ButtonStyle="ButtonStyle.Secondary" Text="Anuluj" Click="CancelUpsertAddress" />
+
+                                            </div>
+
+                                        </EditForm>
+                                    }
+
+                                    @if (FireAddressVisible)
+                                    {
+                                        @if (address != null)
+                                        {
+
+                                            @if (address.ApartamentNumber != null && address.ApartamentNumber != "")
+                                            {
+                                                <p><span class="text-primary"><RadzenIcon Icon="home" /></span> @address.Street @address.HouseNumber/@address.ApartamentNumber</p>
+                                            }
+                                            else
+                                            {
+                                                <p><span class="text-primary"><RadzenIcon Icon="home" /></span>@address.Street @address.HouseNumber</p>
+                                            }
+                                            <p>@address.PostCode @address.City</p>
+                                            <small class="text-secondary mt-2">Poczta</small>
+                                            <p>@address.PostCity</p>
+                                            <div class="col-sm-6 mt-3">
+                                                <RadzenButton Text="@(AddressBtnText = "Edytuj")" Click="@(args => ShowEditAddressForm(address))" ButtonStyle="ButtonStyle.Secondary" />
+                                            </div>
+                                        }
+                                        else
+                                        {
+                                            <div class="col-sm-6 mt-3">
+                                                <RadzenButton Text="@(AddressBtnText = "Dodaj")" Click="@(args => ShowAddAddressForm(unionInstitution.Id))" ButtonStyle="ButtonStyle.Secondary" />
+                                            </div>
+                                        }
+                                    }
+                                </RadzenCard>
+                            </div>
+                            <div class="col-sm-6">
+                                <RadzenCard>
+                                    <h4>Dane kontaktowe</h4>
+                                    @if (ContactEditFormVisible)
+                                    {
+                                        <EditForm Model="FireContact" OnValidSubmit="FireContactUpsert">
+                                            <DataAnnotationsValidator />
+                                            <div class="form-group">
+                                                <small class="text-secondary d-block">Telefon</small>
+                                                <RadzenMask @bind-Value="FireContact.Phone" Mask="*********" CharacterPattern="[0-9]" Placeholder="np. 322332323" Class="form-control" />
+                                                <ValidationMessage For="() => FireContact.Phone" />
+                                            </div>
+                                            <div class="form-group">
+                                                <small class="text-secondary d-block">Email</small>
+                                                <RadzenTextBox @bind-Value="FireContact.Email" Placeholder="np.aaa@test.pl" Class="form-control" />
+                                                <ValidationMessage For="() => FireContact.Email" />
+                                            </div>
+                                            <RadzenButton ButtonType="ButtonType.Submit" ButtonStyle="ButtonStyle.Success" Text="Zapisz" />
+                                            <RadzenButton ButtonStyle="ButtonStyle.Secondary" Text="Anuluj" Click="CancelUpsertContact" />
+                                        </EditForm>
+                                    }
+                                    @if (FireContactVisilble)
+                                    {
+                                        @if (contact != null)
+                                        {
+
+                                            <p><span class="text-primary"><RadzenIcon Icon="phone" /></span> @contact.Phone</p>
+
+                                            <p><span class="text-primary"><RadzenIcon Icon="email" /></span> @contact.Email</p>
+
+                                            <div class="col-sm-6 mt-3">
+                                                <RadzenButton Text="@(ContactBtnText = "Edytuj")" Click="@(args => ShowEditContactForm(contact))" ButtonStyle="ButtonStyle.Secondary" />
+                                            </div>
+                                        }
+                                        else
+                                        {
+                                            <div class="col-sm-6 mt-3">
+                                                <RadzenButton Text="@(ContactBtnText = "Dodaj")" Click="@(args => ShowAddContactForm(unionInstitution.Id))" ButtonStyle="ButtonStyle.Secondary" />
+                                            </div>
+                                        }
+                                    }
+
+
+                                </RadzenCard>
+                            </div>
+
+                        </div>
+
+                    }
+
+
+                }
+
+            </Template>
+            <Columns>
+                <RadzenDataGridColumn TItem="UnionInstitution" Property="FullName" Title="Nazwa" Width="400px">
+                    <Template Context="unionInstitution">
+                        @unionInstitution.FullName
+                    </Template>
+                    <EditTemplate Context="unionInstitution">
+
+                        <RadzenTextBox @bind-Value="unionInstitution.FullName" Style="width:100%; display: block" Name="fullName" Placeholder="Podaj pełną nazwę" />
+                        <RadzenRequiredValidator Text="Pole 'Pałna nazwa'' jest obowiązkowe" Component="fullName" />
+                    </EditTemplate>
+                </RadzenDataGridColumn>
+                <RadzenDataGridColumn TItem="UnionInstitution" Property="ShortName" Title="Nazwa skrócona">
+                    <Template Context="unionInstitution">
+                        @unionInstitution.ShortName
+                    </Template>
+                    <EditTemplate Context="unionInstitution">
+                        <RadzenTextBox @bind-Value="unionInstitution.ShortName" Style="width:100%; display: block" Name="shortName" Placeholder="Podaj nazwę skróconą" />
+                        <RadzenRequiredValidator Text="Pole 'Nazwa skrócona'' jest obowiązkowe" Component="shortName" />
+                    </EditTemplate>
+                </RadzenDataGridColumn>
+                <RadzenDataGridColumn TItem="UnionInstitution" Property="City" Title="Miasto">
+                    <Template Context="unionInstitution">
+                        @unionInstitution.City
+                    </Template>
+                    <EditTemplate Context="unionInstitution">
+                        <RadzenTextBox @bind-Value="unionInstitution.City" Style="width:100%; display: block" Name="city" Placeholder="Podaj miasto" />
+                        <RadzenRequiredValidator Text="Pole 'miasto' jest obowiązkowe" Component="city" />
+                    </EditTemplate>
+                </RadzenDataGridColumn>
+                <RadzenDataGridColumn TItem="UnionInstitution" Title="Członkowie ZNP">
+                    <Template Context="unionInstitution">
+                        @{
+                            using (var _context = _contextFactory.CreateDbContext())
+                            {
+                                var membersCount = _context.Member.Where(u => u.UnionInstitutionId == unionInstitution.Id).Count();
+                                <RadzenButton ButtonStyle="ButtonStyle.Light" Size="ButtonSize.Medium" Class="m-1" Click="@(args => MembersList(unionInstitution))" @onclick:stopPropagation="true">
+                                    Lista
+                                    <RadzenBadge BadgeStyle="BadgeStyle.Primary">@membersCount</RadzenBadge>
+                                </RadzenButton>
+                            }
+                        }
+                    </Template>
+
+                </RadzenDataGridColumn>
+
+                <RadzenDataGridColumn TItem="UnionInstitution" Title="Akcje" Sortable="false">
+                    <Template Context="unionInstitution">
+                        <RadzenButton Icon="money" Size="ButtonSize.Medium" ButtonStyle="ButtonStyle.Success" Click="@(args => Payment(unionInstitution))" @onclick:stopPropagation="true" MouseEnter="@(args => ShowPaymentTooltip(args))" />
+                        <RadzenButton Icon="edit" Size="ButtonSize.Medium" Click="@(args => EditRow(unionInstitution))" @onclick:stopPropagation="true" MouseEnter="@(args => ShowEditTooltip(args))" />
+                        <RadzenButton ButtonStyle="ButtonStyle.Danger" Icon="delete" Size="ButtonSize.Medium" Class="m-1" Click="@(args => ShowDeleteDialog(unionInstitution))" @onclick:stopPropagation="true" MouseEnter="@(args => ShowDeleteTooltip(args))">
+                        </RadzenButton>
+                    </Template>
+                    <EditTemplate Context="unionInstitution">
+                        <RadzenButton Icon="save" Size="ButtonSize.Medium" Click="@((args) => SaveRow(unionInstitution))" ButtonStyle="ButtonStyle.Success" MouseEnter="@(args => ShowSaveTooltip(args))" />
+                        <RadzenButton Icon="cancel" Size="ButtonSize.Medium" ButtonStyle="ButtonStyle.Secondary" Click="@((args) => CancelEdit(unionInstitution))" MouseEnter="@(args => ShowCancelTooltip(args))" />
+                    </EditTemplate>
+                </RadzenDataGridColumn>
+
+
+
+            </Columns>
+        </RadzenDataGrid>
+    }
+
+</div>
+
+@code {
+    [Parameter]
+    public int? branchId { get; set; }
+    public UnionInstitution UnionInstitution { get; set; }
+    private string Title = "";
+    IList<UnionInstitution> FiresList { get; set; }
+    public UnionInstitutionAddress FireAddress { get; set; }
+    public UnionInstitutionContact FireContact { get; set; }
+    public bool FireContactVisilble { get; set; } = true;
+    public bool ContactEditFormVisible { get; set; } = false;
+    public bool FireAddressVisible { get; set; } = true;
+    public bool AddressEditFormVisible { get; set; } = false;
+    public bool ProgressBarVisible { get; set; }
+    public string ContactBtnText { get; set; }
+    public string AddressBtnText { get; set; }
+    public bool AddMemberToStructureBtnVisible { get; set; } = true;
+    public bool SearchMemberFormVisible { get; set; } = false;
+    public bool AddSearchedMemberVisible { get; set; } = false;
+    public UnionStructure UnionStructure { get; set; }
+    public IList<UnionFunctionType> UnionFunctionTypes { get; set; }
+    public UnionStructureFunction UnionStructureFunction { get; set; } = new UnionStructureFunction();
+    public SearchMemberByPesel SearchMemberByPeselModel { get; set; } = new SearchMemberByPesel();
+    public Member Member { get; set; } = new Member();
+    RadzenDataGrid<UnionInstitution> unionInstitutionGrid;
+
+    //Functions
+
+    protected override async Task OnInitializedAsync()
+    {
+        ProgressBarVisible = true;
+
+        #region checkAccess
+        if (branchId == null)
+        {
+            _navigationManager.NavigateTo("/NotFoundPage");
+        }
+        var result = await _accessService.AccessByInsitutionId(branchId);
+        if (!result)
+        {
+            _navigationManager.NavigateTo("/NotFoundPage");
+        }
+        UnionInstitution = await _unionInstitutionRepository.GetUnionInstitutionById(branchId);
+        if (UnionInstitution == null)
+        {
+            _navigationManager.NavigateTo("/NotFoundPage");
+        }
+        if (UnionInstitution == null)
+        {
+            _navigationManager.NavigateTo("/NotFoundPage");
+        }
+        #endregion
+        Title = $"{UnionInstitution.FullName} - lista ognisk";
+        FiresList = await _unionInstitutionRepository.GetFiresInBranch(UnionInstitution.Id);
+        ProgressBarVisible = false;
+    }
+
+    #region fireOperations
+    async Task OnCreateRow(UnionInstitution unionInstitution)
+    {
+        using (var _context = _contextFactory.CreateDbContext())
+        {
+            var fireType = await _context.TypeOfUnionInstitution
+                .FirstOrDefaultAsync(t => t.Name == TypeOfUnionInstitutionSD.Fire);
+            unionInstitution.TypeOfUnionInstitutionId = fireType.Id;
+        }
+        unionInstitution.MotherInstitutionId = UnionInstitution.Id;
+        var result = await _unionInstitutionRepository.CreateUnionInstitution(unionInstitution);
+        if (result)
+        {
+            _notificationService.Notify(NotificationSeverity.Success, "Sukces", $"Dodano nowe ogniwo '{unionInstitution.FullName}'", 3000);
+            FiresList = await _unionInstitutionRepository.GetFiresInBranch(UnionInstitution.Id);
+        }
+        else
+        {
+            _notificationService.Notify(NotificationSeverity.Error, "Błąd", $"Nie dodano ogniwa '{unionInstitution.FullName}'", 3000);
+            return;
+        }
+    }
+
+
+    async Task SaveRow(UnionInstitution unionInstitution)
+    {
+        if (unionInstitution == unionInstitutionToInsert)
+        {
+            unionInstitutionToInsert = null;
+        }
+
+        await unionInstitutionGrid.UpdateRow(unionInstitution);
+    }
+
+    async Task OnUpdateRow(UnionInstitution unionInstitution)
+    {
+        if (unionInstitution == unionInstitutionToInsert)
+        {
+            unionInstitutionToInsert = null;
+        }
+        var result = await _unionInstitutionRepository.UpdateUnionInstitution(unionInstitution);
+        if (result)
+        {
+            _notificationService.Notify(NotificationSeverity.Success, "Sukces", "Dane zostały zaktualizowane", 3000);
+            FiresList = await _unionInstitutionRepository.GetFiresInBranch(UnionInstitution.Id);
+        }
+        else
+        {
+            _notificationService.Notify(NotificationSeverity.Error, "Błąd", "Dane nie zostały zaktualizowane", 3000);
+            return;
+        }
+    }
+
+    async Task EditRow(UnionInstitution unionInstitution)
+    {
+        await unionInstitutionGrid.EditRow(unionInstitution);
+    }
+
+    async Task InsertRow()
+    {
+        unionInstitutionToInsert = new UnionInstitution();
+        await unionInstitutionGrid.InsertRow(unionInstitutionToInsert);
+    }
+
+    UnionInstitution unionInstitutionToInsert;
+
+    async Task CancelEdit(UnionInstitution unionInstitution)
+    {
+        if (unionInstitution == unionInstitutionToInsert)
+        {
+            unionInstitutionToInsert = null;
+        }
+        unionInstitutionGrid.CancelEditRow(unionInstitution);
+        using (var _context = _contextFactory.CreateDbContext())
+        {
+            var typeEntry = _context.Entry(unionInstitution);
+            if (typeEntry.State == EntityState.Modified)
+            {
+                typeEntry.CurrentValues.SetValues(typeEntry);
+                typeEntry.State = EntityState.Unchanged;
+            }
+        }
+        FiresList = await _unionInstitutionRepository.GetFiresInBranch(UnionInstitution.Id);
+    }
+
+    async Task ShowDeleteDialog(UnionInstitution unionInstitution)
+    {
+        var result = await _dialogService.OpenAsync("Uwaga", ds =>
+    @<div>
+        <h3 class="mb-4 text-danger">Czy na pewno chcesz usunąć '@unionInstitution.FullName'?</h3>
+        <div class="row">
+            <div class="col">
+                <RadzenButton Text="Usuń" Click="() => ds.Close(true)" Class="mr-1" ButtonStyle="ButtonStyle.Danger" />
+                <RadzenButton Text="Anuluj" Click="() => ds.Close(false)" ButtonStyle="ButtonStyle.Secondary" Class="mr-1" />
+            </div>
+        </div>
+    </div>);
+
+  if (result)
+  {
+      if (unionInstitution == unionInstitutionToInsert)
+      {
+          unionInstitutionToInsert = null;
+      }
+      var deleteResult = await _unionInstitutionRepository.DeleteUnionInstitution(unionInstitution.Id);
+      if (deleteResult)
+      {
+          _notificationService.Notify(NotificationSeverity.Success, "Sukces", $"Pomyślnie usunięto '{unionInstitution.FullName}'", 3000);
+          FiresList = await _unionInstitutionRepository.GetFiresInBranch(UnionInstitution.Id);
+      }
+      else
+      {
+          _notificationService.Notify(NotificationSeverity.Error, "Błąd", $"Dane nie zostały usunięte", 3000);
+          return;
+      }
+  }
+
+}
+#endregion fireOperations
+
+async Task MembersList(UnionInstitution unionInstitution)
+{
+  _navigationManager.NavigateTo($"/user/unionInstitution/members/membersList/fire/{unionInstitution.Id}/{branchId}");
+}
+
+async Task ShowEditAddressForm(UnionInstitutionAddress address)
+{
+  FireAddress = address;
+  AddressEditFormVisible = true;
+  FireAddressVisible = false;
+}
+
+async Task ShowAddAddressForm(int unionInstitutionId)
+{
+  if (AddressBtnText == "Dodaj")
+  {
+      FireAddress = new UnionInstitutionAddress();
+      FireAddress.UnionInstitutionId = unionInstitutionId;
+  }
+  AddressEditFormVisible = true;
+  FireAddressVisible = false;
+}
+
+async Task FireAddressUpsert()
+{
+  if (FireAddress.Id == null)
+  {
+      using (var _context = _contextFactory.CreateDbContext())
+      {
+          _context.UnionInstitutionAddress.Add(FireAddress);
+
+          await _context.SaveChangesAsync();
+      }
+  }
+  else
+  {
+      using (var _context = _contextFactory.CreateDbContext())
+      {
+          _context.UnionInstitutionAddress.Update(FireAddress);
+
+          await _context.SaveChangesAsync();
+      }
+  }
+  AddressEditFormVisible = false;
+  FireAddressVisible = true;
+}
+
+async Task CancelUpsertAddress()
+{
+  AddressEditFormVisible = false;
+  FireAddressVisible = true;
+}
+
+async Task ShowEditContactForm(UnionInstitutionContact contact)
+{
+  FireContact = contact;
+  ContactEditFormVisible = true;
+  FireContactVisilble = false;
+}
+
+async Task ShowAddContactForm(int? unionInstitutionId)
+{
+  if (ContactBtnText == "Dodaj")
+  {
+      FireContact = new UnionInstitutionContact();
+      FireContact.UnionInstitutionId = unionInstitutionId;
+  }
+  ContactEditFormVisible = true;
+  FireContactVisilble = false;
+}
+
+async Task FireContactUpsert()
+{
+  if (FireContact.Id == null)
+  {
+      using (var _context = _contextFactory.CreateDbContext())
+      {
+          _context.UnionInstitutionContact.Add(FireContact);
+
+          await _context.SaveChangesAsync();
+      }
+  }
+  else
+  {
+      using (var _context = _contextFactory.CreateDbContext())
+      {
+          _context.UnionInstitutionContact.Update(FireContact);
+
+          await _context.SaveChangesAsync();
+      }
+  }
+  ContactEditFormVisible = false;
+  FireContactVisilble = true;
+}
+
+async Task CancelUpsertContact()
+{
+  ContactEditFormVisible = false;
+  FireContactVisilble = true;
+}
+
+async Task SearchMember()
+{
+  SearchMemberFormVisible = true;
+  AddMemberToStructureBtnVisible = false;
+}
+
+async Task NoAddMemberToStructure()
+{
+  SearchMemberFormVisible = false;
+  AddMemberToStructureBtnVisible = true;
+}
+
+async Task SearchMemberByPesel()
+{
+  Member = await _memberRepository.GetMemberByPesel(SearchMemberByPeselModel.Pesel);
+  if (Member != null)
+  {
+      SearchMemberFormVisible = false;
+      AddSearchedMemberVisible = true;
+      SearchMemberByPeselModel.Pesel = "";
+
+      UnionFunctionTypes = await _unionStructureRepository.GetUnionFunctionTypes();
+
+      UnionStructureFunction.UnionStructureId = UnionStructure.Id;
+      UnionStructureFunction.MemberId = Member.Id;
+  }
+  else
+  {
+      _notificationService.Notify(NotificationSeverity.Error, "Błąd", "Podany pesel nie istnieje", 3000);
+      return;
+  }
+}
+
+async Task NoSaveMemberToStructure()
+{
+  AddSearchedMemberVisible = false;
+  SearchMemberFormVisible = false;
+  AddMemberToStructureBtnVisible = true;
+}
+
+async Task CreateStructureFunction()
+{
+  SearchMemberFormVisible = false;
+  //AddMemberToStructureBtnVisible = false;
+
+  using (var _context = _contextFactory.CreateDbContext())
+  {
+      var functionfromDb = await _context.UnionStructureFunction
+          .FirstOrDefaultAsync(f => f.MemberId == UnionStructureFunction.MemberId && f.UnionStructureId == UnionStructureFunction.UnionStructureId);
+      if (functionfromDb != null)
+      {
+          _notificationService.Notify(NotificationSeverity.Error, "Błąd", "Osoba jest już dodana dodana", 3000);
+          return;
+      }
+  }
+  var result = await _unionStructureRepository.AddMemberToStructure(UnionStructureFunction);
+  if (result)
+  {
+      _notificationService.Notify(NotificationSeverity.Success, "Sukces", $"Osoba została dodana", 3000);
+      AddMemberToStructureBtnVisible = true;
+  }
+  else
+  {
+      _notificationService.Notify(NotificationSeverity.Error, "Błąd", "Osoba nie została dodana", 3000);
+      return;
+  }
+
+  AddSearchedMemberVisible = false;
+}
+
+async Task Payment(UnionInstitution fireId)
+{
+  _navigationManager.NavigateTo("");
+}
+
+void Open(string title, Type type, Dictionary<string, object> parameters, DialogOptions options) { }
+
+void Close(dynamic result) { }
+
+public void Dispose()
+{
+  // The DialogService is a singleton so it is advisable to unsubscribe.
+  _dialogService.OnOpen -= Open;
+  _dialogService.OnClose -= Close;
+}
+
+void ShowEditTooltip(ElementReference elementReference, TooltipOptions options = null) => _tooltipService.Open(elementReference, "Edytuj", options);
+void ShowCancelTooltip(ElementReference elementReference, TooltipOptions options = null) => _tooltipService.Open(elementReference, "Anuluj", options);
+void ShowSaveTooltip(ElementReference elementReference, TooltipOptions options = null) => _tooltipService.Open(elementReference, "Zapisz", options);
+void ShowDeleteTooltip(ElementReference elementReference, TooltipOptions options = null) => _tooltipService.Open(elementReference, "Usuń", options);
+void ShowPaymentTooltip(ElementReference elementReference, TooltipOptions options = null) => _tooltipService.Open(elementReference, "Składki", options);
+
+
+
+}
+

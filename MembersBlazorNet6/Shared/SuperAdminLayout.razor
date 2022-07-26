@@ -1,0 +1,29 @@
+﻿@inherits LayoutComponentBase
+
+<PageTitle>Members</PageTitle>
+
+<div class="page">
+    
+    <div class="sidebar">
+        <SuperAdminMenu />
+    </div>
+
+    <main>
+        <div class="top-row px-4 auth">
+            <LoginDisplay />
+            
+        </div>
+
+        <article class="content px-4">
+            <div>
+                <RadzenDialog />
+                <RadzenTooltip />
+                <RadzenNotification />
+                <RadzenContextMenu/>
+            </div>
+            
+            @Body
+        </article>
+    </main>
+</div>
+

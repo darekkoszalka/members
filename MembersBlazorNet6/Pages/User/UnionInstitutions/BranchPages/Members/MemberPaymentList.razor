@@ -1,0 +1,318 @@
+﻿@page "/users/branchPages/members/memberPaymentList/{memberId:int}/{branchId:int}"
+
+
+@using ClosedXML.Excel
+@inject NotificationService _notificationService
+@inject TooltipService _tooltipService
+@inject NavigationManager _navigationManager
+@inject DialogService _dialogService
+@inject IDbContextFactory<ApplicationDbContext> _contextFactory
+@inject IAccessService _accessService
+@inject IMemberRepository _memberRepository
+@inject IMemberPaymentRepository _memberPaymentRepository
+@inject IExcelService _excelService
+
+
+<div class="container">
+    @if (ProgressBarVisible)
+    {
+        <RadzenProgressBar Value="100" ShowValue="false" Mode="ProgressBarMode.Indeterminate" />
+    }
+    else
+    {
+        <Breadcrumb Title="@Title" />
+        <div class="row d-flex justify-content-between">
+            <div class="col-sm-4">
+                <h4>Wybierz rok</h4>
+                <RadzenDropDown AllowClear="true" AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" @bind-Value="@Year"
+                                Data=@Years Class="w-100" Change="@(year => ChooseYear(Year))" />
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-12">
+                <RadzenButton Text="Dodaj składkę" Icon="add_circle_outline" Click="@InsertRow" ButtonStyle="ButtonStyle.Primary" Style="margin-bottom: 20px;" Disabled=@(PaymentToInsert != null) />
+                <RadzenButton Icon="savings" Text="Wszystkie składki" Click="@AllPayments" ButtonStyle="ButtonStyle.Success" Style="margin-bottom: 20px;" />
+                <RadzenButton Icon="grid_on" Text="Eksportuj do Excel" Click="@ExportToExcel" ButtonStyle="ButtonStyle.Success" Style="margin-bottom: 20px;" />
+            </div>
+
+        </div>
+
+
+
+        <RadzenDataGrid @ref="@PaymentListGrid" Data="@ListOfPayment" TItem="MemberPayment" AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" AllowPaging="true" AllowSorting="true" FilterMode="FilterMode.Simple" EditMode="DataGridEditMode.Single" RowUpdate="@OnUpdateRow" RowCreate="@OnCreateRow">
+            <EmptyTemplate>
+                <p style="color: lightgrey; font-size: 24px; text-align: center; margin: 2rem;">Brak danych.</p>
+            </EmptyTemplate>
+            <Columns>
+                <RadzenDataGridColumn TItem="MemberPayment" Property="PaymentDate" Title="Data" Filterable="false">
+                    <Template Context="memberPayment">
+                        @memberPayment.PaymentDate.Value.ToString("dd/MM/yyyy")
+                    </Template>
+                    <EditTemplate Context="memberPayment">
+                        <RadzenDatePicker @bind-Value="@memberPayment.PaymentDate" DateFormat="d" Change=@(args => DateTimeValidate(args)) Class="w-100" Name="paymentDate" />
+                    </EditTemplate>
+                    <FooterTemplate>
+                        <p class="fw-bold">Ilość składek: @ListOfPayment.Count</p>
+                    </FooterTemplate>
+                </RadzenDataGridColumn>
+                <RadzenDataGridColumn TItem="MemberPayment" Title="Kwota" Property="Payment">
+                    <Template Context="memberPayment">
+                        @memberPayment.Payment.Value.ToString("0.00")
+                    </Template>
+                    <EditTemplate Context="memberPayment">
+                        <RadzenNumeric @bind-Value="@memberPayment.Payment" Placeholder="0,00" Name="payment" />
+                    </EditTemplate>
+                    <FooterTemplate>
+                        <p class="fw-bold">Razem: @ListOfPayment.Sum(p => p.Payment).Value.ToString("0.00") zł</p>
+                    </FooterTemplate>
+                </RadzenDataGridColumn>
+
+
+                <RadzenDataGridColumn TItem="MemberPayment" Title="Akcje" Sortable="false">
+                    <Template Context="payment">
+                        <RadzenButton Icon="edit" Size="ButtonSize.Medium" Click="@(args => EditRow(payment))" @onclick:stopPropagation="true" MouseEnter="@(args => ShowEditTooltip(args))" />
+                        <RadzenButton ButtonStyle="ButtonStyle.Danger" Icon="delete" Size="ButtonSize.Medium" Class="m-1" Click="@(args => ShowDeleteDialog(payment))" @onclick:stopPropagation="true" MouseEnter="@(args => ShowDeleteTooltip(args))">
+                        </RadzenButton>
+                    </Template>
+                    <EditTemplate Context="payment">
+                        <RadzenButton Icon="save" Size="ButtonSize.Medium" Click="@((args) => SaveRow(payment))" ButtonStyle="ButtonStyle.Success" MouseEnter="@(args => ShowSaveTooltip(args))" />
+                        <RadzenButton Icon="cancel" Size="ButtonSize.Medium" ButtonStyle="ButtonStyle.Secondary" Click="@((args) => CancelEdit(payment))" MouseEnter="@(args => ShowCancelTooltip(args))" />
+                    </EditTemplate>
+                </RadzenDataGridColumn>
+
+
+
+            </Columns>
+        </RadzenDataGrid>
+    }
+
+</div>
+
+@code {
+
+    #region zmienne
+    [Parameter]
+    public int? memberId { get; set; }
+    [Parameter]
+    public int? branchId { get; set; }
+    private string Title = "";
+    public bool ProgressBarVisible { get; set; }
+    RadzenDataGrid<MemberPayment> PaymentListGrid;
+    public MemberPayment Payment { get; set; }
+    public IList<MemberPayment> ListOfPayment { get; set; }
+    public Member Member { get; set; }
+    public IList<int> Years { get; set; }
+    public int? Year { get; set; } = DateTime.Now.Year;
+    public MemberPayment PaymentToInsert { get; set; }
+    public string DateValidateText { get; set; } = "";
+    //for access check
+    public UnionInstitution UnionInstitution { get; set; }
+    #endregion zmienne
+
+    protected override async Task OnInitializedAsync()
+    {
+        ProgressBarVisible = true;
+        ProgressBarVisible = true;
+        if (branchId == null)
+        {
+            _navigationManager.NavigateTo("/NotFoundPage");
+        }
+        var result = await _accessService.AccessByInsitutionId(branchId);
+        if (!result)
+        {
+            _navigationManager.NavigateTo("/NotFoundPage");
+        }
+        if (memberId == null)
+        {
+            _navigationManager.NavigateTo("/NotFoundPage");
+        }
+        #region checkAccess
+
+        Member = await _memberRepository.GetMemberById(memberId);
+        if (Member == null)
+        {
+            _navigationManager.NavigateTo("/NotFoundPage");
+        }
+        #endregion
+        Years = Enumerable.Range(2021, DateTime.Now.Year - 2021 + 20).ToList();
+        Title = $"{Member.FullName} - składki";
+        ListOfPayment = await _memberPaymentRepository.GetPaymentByMemberIdAndYear(memberId, Year);
+        ProgressBarVisible = false;
+        System.Globalization.CultureInfo.DefaultThreadCurrentCulture = new System.Globalization.CultureInfo("pl-Pl");
+    }
+
+    async Task AllPayments()
+    {
+        ListOfPayment = await _memberPaymentRepository.GetPaymentsByMemberId(memberId);
+    }
+
+    async Task ChooseYear(int? year)
+    {
+        Year = year.Value;
+        ListOfPayment = await _memberPaymentRepository.GetPaymentByMemberIdAndYear(memberId, Year);
+    }
+
+    async Task DateTimeValidate(DateTime? date)
+    {
+        if (date == null)
+        {
+            _notificationService.Notify(NotificationSeverity.Error, "Błąd", "Wybierz datę", 3000);
+            return;
+        }
+        if (date > DateTime.Now)
+        {
+            _notificationService.Notify(NotificationSeverity.Error, "Błąd", "Data nie może być z przyszłości", 3000);
+            return;
+        }
+    }
+
+    async Task ExportToExcel()
+    {
+        var result = await _excelService.PaymentsToExcel(ListOfPayment, Member);
+        if (result)
+        {
+            _notificationService.Notify(NotificationSeverity.Success, "Sukces", "Pomyślnie zapisano do excel", 3000);
+        }
+        else
+        {
+            _notificationService.Notify(NotificationSeverity.Error, "Błąd", "Dane nie zostały zapisane do excel", 3000);
+        }
+
+    }
+
+    #region PaymentOperations
+
+    async Task InsertRow()
+    {
+        PaymentToInsert = new MemberPayment();
+        PaymentToInsert.MemberId = memberId;
+        PaymentToInsert.PaymentDate = DateTime.Now;
+        await PaymentListGrid.InsertRow(PaymentToInsert);
+    }
+
+    async Task OnCreateRow(MemberPayment payment)
+    {
+        payment.MemberId = memberId;
+        var result = await _memberPaymentRepository.CreatePayment(payment);
+        if (result)
+        {
+            _notificationService.Notify(NotificationSeverity.Success, "Sukces", "Składka została dodana", 3000);
+            ListOfPayment = await _memberPaymentRepository.GetPaymentByMemberIdAndYear(memberId, Year);
+        }
+        else
+        {
+            _notificationService.Notify(NotificationSeverity.Error, "Błąd", "Składka nie została dodana", 3000);
+            return;
+        }
+    }
+
+    async Task SaveRow(MemberPayment payment)
+    {
+        if (payment.PaymentDate == null)
+        {
+            _notificationService.Notify(NotificationSeverity.Error, "Błąd", "Wybierz datę składki", 3000);
+            return;
+        }
+        if (payment.PaymentDate > DateTime.Now)
+        {
+            _notificationService.Notify(NotificationSeverity.Error, "Błąd", "Data nie może być z przyszłości", 3000);
+            return;
+        }
+        if (payment.Payment == null)
+        {
+            _notificationService.Notify(NotificationSeverity.Error, "Błąd", "Podaj kwotę składki w formacie 0,00", 3000);
+            return;
+        }
+        if (payment == PaymentToInsert)
+        {
+            PaymentToInsert = null;
+        }
+        await PaymentListGrid.UpdateRow(payment);
+    }
+
+    async Task OnUpdateRow(MemberPayment payment)
+    {
+        if (payment == PaymentToInsert)
+        {
+            PaymentToInsert = null;
+        }
+        var result = await _memberPaymentRepository.UpdatePayment(payment);
+        if (result)
+        {
+            _notificationService.Notify(NotificationSeverity.Success, "Sukces", "Dane zostały zaktualizowane", 3000);
+            ListOfPayment = await _memberPaymentRepository.GetPaymentByMemberIdAndYear(memberId, Year);
+        }
+        else
+        {
+            _notificationService.Notify(NotificationSeverity.Error, "Błąd", "Dane nie zostały zaktualizowane", 3000);
+            return;
+        }
+    }
+
+    async Task EditRow(MemberPayment payment)
+    {
+        await PaymentListGrid.EditRow(payment);
+    }
+
+    async Task CancelEdit(MemberPayment payment)
+    {
+        if (payment == PaymentToInsert)
+        {
+            PaymentToInsert = null;
+        }
+        PaymentListGrid.CancelEditRow(payment);
+        using (var _context = _contextFactory.CreateDbContext())
+        {
+            var typeEntry = _context.Entry(payment);
+            if (typeEntry.State == EntityState.Modified)
+            {
+                typeEntry.CurrentValues.SetValues(typeEntry);
+                typeEntry.State = EntityState.Unchanged;
+            }
+        }
+
+    }
+
+    async Task ShowDeleteDialog(MemberPayment payment)
+    {
+        var result = await _dialogService.OpenAsync("Uwaga", ds =>
+    @<div>
+        <h3 class="mb-4 text-danger">Czy na pewno chcesz usunąć składkę?</h3>
+        <div class="row">
+            <div class="col">
+                <RadzenButton Text="Usuń" Click="() => ds.Close(true)" Class="mr-1" ButtonStyle="ButtonStyle.Danger" />
+                <RadzenButton Text="Anuluj" Click="() => ds.Close(false)" ButtonStyle="ButtonStyle.Secondary" Class="mr-1" />
+            </div>
+        </div>
+    </div>);
+  if (result)
+  {
+      if (payment == PaymentToInsert)
+      {
+          PaymentToInsert = null;
+      }
+      var deleteResult = await _memberPaymentRepository.DeletePayment(payment.Id);
+      if (deleteResult)
+      {
+          _notificationService.Notify(NotificationSeverity.Success, "Sukces", $"Pomyślnie usunięto składkę", 3000);
+          ListOfPayment = await _memberPaymentRepository.GetPaymentByMemberIdAndYear(memberId, Year);
+      }
+      else
+      {
+          _notificationService.Notify(NotificationSeverity.Error, "Błąd", $"Dane nie zostały usunięte", 3000);
+          return;
+      }
+  }
+}
+#endregion PaymentOperations
+#region tooltips
+void ShowEditTooltip(ElementReference elementReference, TooltipOptions options = null) => _tooltipService.Open(elementReference, "Edytuj", options);
+void ShowCancelTooltip(ElementReference elementReference, TooltipOptions options = null) => _tooltipService.Open(elementReference, "Anuluj", options);
+void ShowSaveTooltip(ElementReference elementReference, TooltipOptions options = null) => _tooltipService.Open(elementReference, "Zapisz", options);
+void ShowDeleteTooltip(ElementReference elementReference, TooltipOptions options = null) => _tooltipService.Open(elementReference, "Usuń", options);
+#endregion tooltips
+
+
+}
+
+

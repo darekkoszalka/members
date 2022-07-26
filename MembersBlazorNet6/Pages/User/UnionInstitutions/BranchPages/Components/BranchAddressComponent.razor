@@ -1,0 +1,53 @@
+﻿@inject NavigationManager _navigationManager
+@inject IDbContextFactory<ApplicationDbContext> _contextFactory
+
+<RadzenCard>
+    <h4>Adres</h4>
+
+    @if (UnionInstitutionAddress != null)
+    {
+
+        @if (UnionInstitutionAddress.ApartamentNumber != null && UnionInstitutionAddress.ApartamentNumber != "")
+        {
+            <p><span class="text-primary"><RadzenIcon Icon="home" /></span> @UnionInstitutionAddress.Street @UnionInstitutionAddress.HouseNumber/@UnionInstitutionAddress.ApartamentNumber</p>
+        }
+        else
+        {
+            <p><span class="text-primary"><RadzenIcon Icon="home" /></span>@UnionInstitutionAddress.Street @UnionInstitutionAddress.HouseNumber</p>
+        }
+        <p>@UnionInstitutionAddress.PostCode @UnionInstitutionAddress.City</p>
+        <small class="text-secondary mt-2">Poczta</small>
+        <p>@UnionInstitutionAddress.PostCity</p>
+        <div class="col-sm-6 mt-3">
+            <RadzenButton Text="Edytuj" Click="(args => EditAddress(UnionInstitutionAddress.Id))" ButtonStyle="ButtonStyle.Secondary" />
+        </div>
+    }
+    else
+    {
+        <div class="col-sm-6 mt-3">
+            <RadzenButton Text="Dodaj" Click="@AddAddress" ButtonStyle="ButtonStyle.Secondary" />
+        </div>
+    }
+</RadzenCard>
+
+
+@code {
+    [Parameter]
+    public int? branchId { get; set; }
+    [Parameter]
+    public UnionInstitution UnionInstitution { get; set; }
+
+    [Parameter]
+    public UnionInstitutionAddress UnionInstitutionAddress { get; set; }
+
+    async Task AddAddress()
+    {
+        _navigationManager.NavigateTo($"/user/unionInstitutions/branchPages/addressCreate/{branchId}");
+    }
+
+    async Task EditAddress(int unionInstitutionAddressId)
+    {
+        _navigationManager.NavigateTo($"/user/unionInstitutions/branchPages/addressEdit/{unionInstitutionAddressId}/{branchId}");
+    }
+}
+

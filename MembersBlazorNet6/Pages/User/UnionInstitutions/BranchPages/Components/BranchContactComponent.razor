@@ -1,0 +1,52 @@
+﻿@inject NavigationManager _navigationManager
+<RadzenCard>
+    <h4>Dane kontaktowe</h4>
+
+    @if (UnionInstitutionContact != null)
+    {
+        <p><span class="text-primary"><RadzenIcon Icon="phone" /></span> @UnionInstitutionContact.Phone</p>
+        <p><span class="text-primary"><RadzenIcon Icon="email" /></span> @UnionInstitutionContact.Email</p>
+        @if (UnionInstitutionContact.LinkWww != null && UnionInstitutionContact.LinkWww != "")
+        {
+            <a href="@UnionInstitutionContact.LinkWww"><span class="text-primary"><RadzenIcon Icon="language" /></span> @UnionInstitutionContact.WWW</a>
+        }
+        else
+        {
+            <p><span class="text-primary"><RadzenIcon Icon="language" /></span> @UnionInstitutionContact.WWW</p>
+        }
+        <div class="col-sm-6 mt-3">
+            <RadzenButton Text="Edytuj" Click="@(args => EditContact(UnionInstitutionContact.Id))" ButtonStyle="ButtonStyle.Secondary" />
+        </div>
+    }
+    else
+    {
+        <div class="col-sm-6 mt-3">
+            <RadzenButton Text="Dodaj" Click="@AddContact" ButtonStyle="ButtonStyle.Secondary" />
+        </div>
+    }
+
+</RadzenCard>
+
+@code {
+
+    [Parameter]
+    public int? branchId { get; set; }
+    [Parameter]
+    public UnionInstitution UnionInstitution { get; set; }
+    [Parameter]
+    public UnionInstitutionContact UnionInstitutionContact { get; set; }
+
+    async Task AddContact()
+    {
+        _navigationManager.NavigateTo($"/user/unionInstitutions/branchPages/branchContactUpsert/contactCreate/{branchId}");
+    }
+
+    async Task EditContact(int contactId)
+    {
+        _navigationManager.NavigateTo($"/user/unionInstitutions/branchPages/branchContactUpsert/contactEdit/{UnionInstitutionContact.Id}/{branchId}");
+    }
+
+}
+
+
+

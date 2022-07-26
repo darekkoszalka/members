@@ -1,0 +1,29 @@
+﻿@*@page "/user/unionInstitutions/district/districtIndex/{DistrictId:int}"
+    @inject IDbContextFactory<ApplicationDbContext> _contextFactory
+    @inject UserManager<ApplicationUser> _userManager;
+    @inject SignInManager<ApplicationUser> _signInManager
+    @inject NavigationManager _navigationManager
+    @inject IAccessService _accessService
+
+
+    <h1>@UnionInstitution.FullName</h1>
+
+
+    @code {
+        [Parameter]
+        public int? DistrictId { get; set; }
+        public ApplicationUser ApplicationUser { get; set; }
+        public UnionInstitution UnionInstitution { get; set; } = new UnionInstitution();
+
+        protected override async Task OnInitializedAsync()
+        {
+            if (DistrictId != null)
+            {
+                UnionInstitution = await _accessService.AccessIsValid(DistrictId);
+            }
+            if (UnionInstitution == null)
+            {
+                _navigationManager.NavigateTo("/NotFoundPage");
+            }
+        }
+    }*@

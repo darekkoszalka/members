@@ -1,0 +1,78 @@
+﻿@page
+@model LoginModel
+
+<div class="container col-xl-10 col-xxl-8 px-4 py-5">
+    <div class="row align-items-center g-lg-5 py-5">
+        <div class="col-lg-7 text-center text-lg-start">
+            <h1 class="display-4 fw-bold lh-1 mb-3">Strona logowania</h1>
+            <p class="col-lg-10 fs-4">Below is an example form built entirely with Bootstrap’s form controls. Each required form group has a validation state that can be triggered by attempting to submit the form without completing it.</p>
+        </div>
+        <div class="col-md-10 mx-auto col-lg-5">
+            <form method="post" autocomplete="off" asp-route-returnUrl="@Model.ReturnUrl" class="p-2 p-md-2 border rounded-3 bg-light">
+                <div asp-validation-summary="All" class="text-danger"></div>
+                <div class="form-floating mb-3">
+                    <small class="form-label text-secondary">Email</small>
+                    <input asp-for="Input.Email" type="email" class="form-control" placeholder="Email">
+                    <span asp-validation-for="Input.Email" class="text-danger"></span>
+
+                </div>
+                <div class="form-floating mb-3">
+                    <small class="text-secondary">Hasło</small>
+                    <input type="password" asp-for="Input.Password" class="form-control" placeholder="Hasło">
+                    <span asp-validation-for="Input.Password" class="text-danger"></span>
+
+                </div>
+
+                <button class="w-100 btn btn-lg btn-primary rounded-pill" type="submit">Zaloguj się</button>
+                <hr class="my-4">
+                <small class="text-muted">Kliknij zaloguj się aby przejść do aplikacji.</small>
+                <div class="form-group">
+                    <p>
+                        <a id="forgot-password" asp-page="./ForgotPassword">Zapomniałeś hasła?</a>
+                    </p>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
+@*<form method="post" autocomplete="off" asp-route-returnUrl="@Model.ReturnUrl">
+    <div class="py-4 my-2">
+        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+    </div>
+    <div class="row form-group">
+        <div class="col-8 offset-2">
+            <div class="card">
+                <div class="card-body px-lg-5 pt-2">
+                    <h3 class="col-12 text-success text-center py-2">Zaloguj się</h3>
+                    <hr />
+
+                    <div class="py-2">
+                        <input type="email" asp-for="Input.Email" placeholder="Email" class="form-control" autocomplete="off" />
+                        <span asp-validation-for="Input.Email" class="text-danger"></span>
+                    </div>
+                    <div class="py-2">
+                        <input type="password" asp-for="Input.Password" placeholder="hasło" class="form-control" autocomplete="off" />
+                        <span asp-validation-for="Input.Password" class="text-danger"></span>
+                    </div>
+
+                    <button type="submit" class="btn btn-success my-2">Zaloguj się</button>
+                    <a class="btn btn-primary ml=4 text-white" onclick="history.back()">Anuluj</a>
+                    <div class="form-group">
+                        <p>
+                            <a id="forgot-password" asp-page="./ForgotPassword">Zapomniałeś hasła?</a>
+                        </p>
+                    </div>
+                </div>
+
+
+            </div>
+        </div>
+
+    </div>
+
+</form>*@

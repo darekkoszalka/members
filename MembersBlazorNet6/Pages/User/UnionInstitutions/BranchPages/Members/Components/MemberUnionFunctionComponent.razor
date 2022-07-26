@@ -1,0 +1,33 @@
+﻿<RadzenCard>
+    <h4>Funkcje związkowe</h4>
+
+    <RadzenDataList Data="@Functions" TItem="UnionStructureFunction">
+        <Template Context="function">
+
+            <div class="row">
+                <div class="col-sm-6 p-1">
+                    <h5 class="text-wrap">@function.UnionStrukture.UnionInstitution.FullName</h5>
+                </div>
+                <div class="col-sm-3">
+                    <p class="text-wrap">@function.UnionStrukture.UnionStructureType.Name</p>
+                </div>
+                <div class="col-sm-3">
+                    <p class="text-wrap">@function.UnionFunctionType.Name</p>
+                </div>
+
+            </div>
+
+        </Template>
+    </RadzenDataList>
+
+
+
+</RadzenCard>
+
+@code {
+
+    [Parameter]
+    public IList<UnionStructureFunction> Functions { get; set; }
+
+}
+

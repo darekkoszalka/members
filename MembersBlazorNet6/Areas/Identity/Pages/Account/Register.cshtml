@@ -1,0 +1,87 @@
+﻿@page
+@using MembersBlazorNet6.StaticData
+@model RegisterModel
+@{ ViewData["Title"] = "Rejestracja nowego użytkownika";
+   
+    }
+
+<form method="post" autocomplete="off" asp-route-returnUrl="@Model.ReturnUrl">
+    <div class="py-4 my-2">
+        <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert">
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+
+    </div>
+    <div class="row form-group">
+        <div class="col-8 offset-2">
+            <div class="card">
+                <div class="card-body px-lg-5 pt-2">
+                    <h3 class="col-12 text-success text-center py-2">Zarejestruj nowego użytkownika</h3>
+                    @if(Model.UnionInstitution != null)
+            {
+                <h4 class="col-12 text-success text-center py-2">Dostęp do ogniwa : @Model.UnionInstitution.FullName</h4>
+            }
+                    
+                    <hr />
+                    <div class="form-row py-2">
+                        <div class="col">
+                            <input type="text" asp-for="Input.FirstName" placeholder="Imię" class="form-control" autocomplete="off" />
+                            <span asp-validation-for="Input.FirstName" class="text-danger"></span>
+                        </div>
+                        <div class="col py-2">
+                            <input type="text" asp-for="Input.LastName" placeholder="Nazwisko" class="form-control" autocomplete="off" />
+                            <span asp-validation-for="Input.LastName" class="text-danger"></span>
+                        </div>
+                    </div>
+                    <div class="py-2">
+                        <input type="email" asp-for="Input.Email" placeholder="Email" class="form-control" autocomplete="off" />
+                        <span asp-validation-for="Input.Email" class="text-danger"></span>
+                    </div>
+                    <div class="py-2">
+                        <input asp-for="Input.PhoneNumber" placeholder="Telefon" class="form-control" autocomplete="off" />
+                        <span asp-validation-for="Input.PhoneNumber" class="text-danger"></span>
+                    </div>
+                    <div class="form-row py-2">
+
+                        <div class="col">
+                            @if (Model.UnionInstitution != null)
+                            {
+                                <input asp-for="Input.UnionInstitutionId" class="form-control" value="@Model.UnionInstitution.Id" type="hidden" name="unionId" />
+                                <span asp-validation-for="Input.UnionInstitutionId" class="text-danger"></span>
+                            }
+
+                        </div>
+
+                    </div>
+
+                    <div class="py-2">
+                        @if (Model.UnionInstitution != null)
+                        {
+                            <input type="radio" name="rdUserRole" value="@RoleSD.UserAdmin" /> @RoleSD.UserAdmin
+                                            <input type="radio" checked="checked" name="rdUserRole" value="@RoleSD.User" /> @RoleSD.User
+                                        }
+                            else
+                        {
+                    <input type="radio" name="rdUserRole" value="@RoleSD.UserAdmin" /> @RoleSD.UserAdmin
+                                    <input type="radio" checked="checked" name="rdUserRole" value="@RoleSD.User" /> @RoleSD.User}
+
+
+                    </div>
+
+                    <button type="submit" class="btn btn-success my-2">Zarejestruj</button>
+                    <a class="btn btn-primary ml=4 text-white" onclick="history.back()">Anuluj</a>
+                </div>
+
+            </div>
+        </div>
+
+    </div>
+
+</form>
+
+
+@*@section Scripts {
+        <partial name="_ValidationScriptsPartial" />
+    }*@

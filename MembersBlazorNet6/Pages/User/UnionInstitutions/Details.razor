@@ -1,0 +1,128 @@
+﻿@*@page "/user/unionInstitution/fireAddressUpsert/details/{unionInstitutionId:int}"
+    @inject IDbContextFactory<ApplicationDbContext> _contextFactory
+    @inject SignInManager<ApplicationUser> _signInManager
+    @inject NavigationManager _navigationManager
+
+    @if (ProgressBarVisible)
+    {
+        <RadzenProgressBar Value="100" ShowValue="false" Mode="ProgressBarMode.Indeterminate" />
+    }
+    else
+    {
+        <Breadcrumb Title="@Title" />
+        <div class="row my-5">
+            <div class="col-sm-6 mt-2">
+                <RadzenCard>
+                    @if (UnionInstitution != null)
+                    {
+                        <h4>Dane podstawowe</h4>
+                        <small class="text-secondary mt-2">Nazwa</small>
+                        <p>@UnionInstitution.FullName</p>
+                        <small class="text-secondary mt-2">Nazwa skrócona</small>
+                        <p>@UnionInstitution.ShortName</p>
+                        <small class="text-secondary mt-2">Typ ogniwa</small>
+                        <p>@TypeUnionInstitutionName</p>
+                        <div class="col-sm-6 mt-3">
+                            <RadzenButton Text="Edytuj" Click="@(args => EditDefaultData(UnionInstitution.Id))" ButtonStyle="ButtonStyle.Secondary" />
+                        </div>
+                    }
+
+
+                </RadzenCard>
+
+            </div>
+            <div class="col-sm-6 mt-2">
+                <AddressComponent UnionInstitutionAddress="UnionInstitutionAddress" />
+            </div>
+
+            <div class="col-sm-6 mt-2">
+                <ContactUnionComponent UnionInstitution="UnionInstitution" UnionInstitutionContact="UnionInstitutionContact" />
+
+            </div>
+
+        </div>
+    }
+
+    @code {
+
+
+        private string Title = "";
+
+        public bool ProgressBarVisible { get; set; }
+
+        [Parameter]
+        public int? Id { get; set; }
+
+        public ApplicationUser ApplicationUser { get; set; }
+
+        public UnionInstitution UnionInstitution { get; set; } = new UnionInstitution();
+
+
+        public UnionInstitutionAddress UnionInstitutionAddress { get; set; }
+
+        public UnionInstitutionContact UnionInstitutionContact { get; set; }
+
+        public string TypeUnionInstitutionName { get; set; } = "";
+
+
+        protected override async Task OnInitializedAsync()
+        {
+            ProgressBarVisible = true;
+            using (var _context = _contextFactory.CreateDbContext())
+            {
+                if (Id == null)
+                {
+
+                    UnionInstitution = await _context.UnionInstitution
+                                               .Include(u => u.TypeOfUnionInstitution)
+                                               .FirstOrDefaultAsync(u => u.TypeOfUnionInstitution.Name == TypeOfUnionInstitutionSD.ZG);
+
+                    ApplicationUser = await _context.ApplicationUser
+                    .FirstOrDefaultAsync(u => u.Email == _signInManager.Context.User.Identity.Name);
+                }
+
+
+
+                if (Id != null && Id > 0)
+                {
+                    UnionInstitution = await _context.UnionInstitution
+                        .Include(u => u.TypeOfUnionInstitution)
+                        .FirstOrDefaultAsync(u => u.Id == Id);
+
+                    TypeUnionInstitutionName = UnionInstitution.TypeOfUnionInstitution.Name;
+
+
+                }
+
+                UnionInstitutionAddress = await _context.UnionInstitutionAddress
+                        .FirstOrDefaultAsync(a => a.UnionInstitutionId == UnionInstitution.Id);
+
+                UnionInstitutionContact = await _context.UnionInstitutionContact
+                    .FirstOrDefaultAsync(a => a.UnionInstitutionId == UnionInstitution.Id);
+            }
+
+            Title = UnionInstitution.FullName;
+
+            ProgressBarVisible = false;
+        }
+        async Task EditDefaultData(int Id)
+        {
+            _navigationManager.NavigateTo($"/admin/unionInstitutions/editDefaultData/{Id}");
+        }
+
+
+
+
+        async Task EditContact(int Id)
+        {
+            _navigationManager.NavigateTo($"/admin/unionInstitutions/contactEdit/{UnionInstitutionContact.Id}");
+        }
+
+        async Task AddContact(int Id)
+        {
+            _navigationManager.NavigateTo($"/admin/unionInstitutions/contactCreate/{Id}");
+        }
+
+
+    }*@
+

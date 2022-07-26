@@ -1,0 +1,39 @@
+﻿@using System.Net.Http
+@using Microsoft.AspNetCore.Identity
+@using System.Security.Claims
+@using Microsoft.AspNetCore.Authorization
+@using Microsoft.AspNetCore.Components.Authorization
+@using Microsoft.AspNetCore.Components.Forms
+@using Microsoft.AspNetCore.Components.Routing
+@using Microsoft.AspNetCore.Components.Web
+@using Microsoft.AspNetCore.Components.Web.Virtualization
+@using Microsoft.EntityFrameworkCore
+@using Microsoft.JSInterop
+@using MembersBlazorNet6
+@using MembersBlazorNet6.Shared
+@using MembersBlazorNet6.Pages
+@using MembersBlazorNet6.StaticData
+@using MembersBlazorNet6.Pages.NavMenus
+@using MembersBlazorNet6.Pages.Admin.TypeOfUnionInstitutions
+@using MembersBlazorNet6.Pages.Admin.Services
+@using MembersBlazorNet6.Data
+@using MembersBlazorNet6.Data.Models
+@using MembersBlazorNet6.Data.Models.UnionInstitutionModels
+@using MembersBlazorNet6.Data.Models.Settings
+@using MembersBlazorNet6.Data.Models.MemberModels
+@using MembersBlazorNet6.Services.Validations
+@using MembersBlazorNet6.Services.SearchingServices.SearchingModels
+@using MembersBlazorNet6.Services.ExportToExcel
+@using MembersBlazorNet6.Services.AccessServices
+@using MembersBlazorNet6.Data.Repositories.IRepository
+@using System.Security.Claims
+
+
+
+@using Radzen
+@using Radzen.Blazor
+
+
+
+
+@attribute [Authorize]

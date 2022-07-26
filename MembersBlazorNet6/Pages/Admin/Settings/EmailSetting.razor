@@ -1,0 +1,272 @@
+﻿@page "/admin/settings/emailSetting"
+
+@inject NotificationService _notificationService
+@inject TooltipService _tooltipService
+@inject NavigationManager _navigationManager
+@inject DialogService _dialogService
+@inject IDbContextFactory<ApplicationDbContext> _contextFactory
+
+<div class="container">
+    @if (ProgressBarVisible)
+    {
+        <RadzenProgressBar Value="100" ShowValue="false" Mode="ProgressBarMode.Indeterminate" />
+    }
+    else
+    {
+        <Breadcrumb Title="@Title" />
+        <RadzenButton Text="Dodaj nowe" Icon="add_circle_outline" Click="@InsertRow" ButtonStyle="ButtonStyle.Primary" Style="margin-bottom: 20px;" Disabled=@(emailPosrtSettingToInsert != null) />
+
+        <RadzenDataGrid @ref="@emailPortsSettingDataGrid" Data="@EmailPortsSettings" TItem="EmailPortsSetting" AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" AllowPaging="true" AllowSorting="true" FilterMode="FilterMode.Simple" EditMode="DataGridEditMode.Single" RowUpdate="@OnUpdateRow" RowCreate="@OnCreateRow">
+            <EmptyTemplate>
+                <p style="color: lightgrey; font-size: 24px; text-align: center; margin: 2rem;">Brak danych.</p>
+            </EmptyTemplate>
+            <Columns>
+                <RadzenDataGridColumn TItem="EmailPortsSetting" Property="Name" Title="Nazwa">
+                    <Template Context="emailPortsSetting">
+                        @emailPortsSetting.Name
+                    </Template>
+                    <EditTemplate Context="emailPortsSetting">
+                        <RadzenTextBox @bind-Value="emailPortsSetting.Name" Style="width:100%; display: block" Name="name" Placeholder="Podaj nazwę" />
+                        <RadzenRequiredValidator Text="Pole 'Nazwa'' jest wymagane" Component="name" />
+                    </EditTemplate>
+                </RadzenDataGridColumn>
+                <RadzenDataGridColumn TItem="EmailPortsSetting" Property="EmailFrom" Title="Email">
+                    <Template Context="emailPortsSetting">
+                        @emailPortsSetting.EmailFrom
+                    </Template>
+                    <EditTemplate Context="emailPortsSetting">
+                        <RadzenTextBox @bind-Value="emailPortsSetting.EmailFrom" Style="width:100%; display: block" Name="emailFrom" Placeholder="Podaj email" />
+                        <RadzenRequiredValidator Text="Pole 'Email' jest wymagane" Component="emailFrom" />
+                    </EditTemplate>
+                </RadzenDataGridColumn>
+                <RadzenDataGridColumn TItem="EmailPortsSetting" Property="SmtpName" Title="Nazwa portu SMTP">
+                    <Template Context="emailPortsSetting">
+                        @emailPortsSetting.SmtpName
+                    </Template>
+                    <EditTemplate Context="emailPortsSetting">
+                        <RadzenTextBox @bind-Value="emailPortsSetting.SmtpName" Style="width:100%; display: block" Name="smtpName" Placeholder="Nazwa portu SMTP" />
+                        <RadzenRequiredValidator Text="Pole 'Nazwa portu SMTP' jest wymagane" Component="smtpName" />
+                    </EditTemplate>
+                </RadzenDataGridColumn>
+                <RadzenDataGridColumn TItem="EmailPortsSetting" Property="SmtpPort" Title="Port SMTP">
+                    <Template Context="emailPortsSetting">
+                        @emailPortsSetting.SmtpPort
+                    </Template>
+                    <EditTemplate Context="emailPortsSetting">
+                        <RadzenNumeric @bind-Value="emailPortsSetting.SmtpPort" Style="width:100%; display: block" Name="smtpPort" Placeholder="Nazwa portu SMTP" />
+                        <RadzenRequiredValidator Text="Pole 'Port SMTP' jest wymagane" Component="smtpPort" />
+                    </EditTemplate>
+                </RadzenDataGridColumn>
+                <RadzenDataGridColumn TItem="EmailPortsSetting" Property="Password" Title="Hasło">
+                    <Template Context="emailPortsSetting">
+                        @emailPortsSetting.Password
+                    </Template>
+                    <EditTemplate Context="emailPortsSetting">
+                        <RadzenTextBox @bind-Value="emailPortsSetting.Password" Style="width:100%; display: block" Name="password" Placeholder="Podaj hasło" />
+                        <RadzenRequiredValidator Text="Pole 'Hasło' jest wymagane" Component="smtpPort" />
+                    </EditTemplate>
+                </RadzenDataGridColumn>
+
+                <RadzenDataGridColumn TItem="EmailPortsSetting" Title="Akcje" Sortable="false">
+                    <Template Context="emailPortsSetting">
+                        <RadzenButton Icon="edit" Size="ButtonSize.Medium" Click="@(args => EditRow(emailPortsSetting))" @onclick:stopPropagation="true" MouseEnter="@(args => ShowEditTooltip(args))" />
+                        <RadzenButton ButtonStyle="ButtonStyle.Danger" Icon="delete" Size="ButtonSize.Medium" Class="m-1" Click="@(args => ShowDeleteDialog(emailPortsSetting))" @onclick:stopPropagation="true" MouseEnter="@(args => ShowDeleteTooltip(args))">
+                        </RadzenButton>
+                    </Template>
+                    <EditTemplate Context="emailPortsSetting">
+                        <RadzenButton Icon="save" Size="ButtonSize.Medium" Click="@((args) => SaveRow(emailPortsSetting))" ButtonStyle="ButtonStyle.Success" MouseEnter="@(args => ShowSaveTooltip(args))" />
+                        <RadzenButton Icon="cancel" Size="ButtonSize.Medium" ButtonStyle="ButtonStyle.Secondary" Click="@((args) => CancelEdit(emailPortsSetting))" MouseEnter="@(args => ShowCancelTooltip(args))" />
+                    </EditTemplate>
+                </RadzenDataGridColumn>
+
+
+
+            </Columns>
+        </RadzenDataGrid>
+    }
+</div>
+
+
+
+
+
+@code {
+
+    RadzenDataGrid<EmailPortsSetting> emailPortsSettingDataGrid;
+
+    RadzenButton radzenButton;
+
+
+    [Parameter]
+    public string Title { get; set; } = "";
+
+    public bool ProgressBarVisible { get; set; }
+
+    IEnumerable<EmailPortsSetting> EmailPortsSettings;
+
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        ProgressBarVisible = true;
+
+        Title = "Ustawienia email";
+
+        using(var context = _contextFactory.CreateDbContext())
+        {
+            EmailPortsSettings = await context.EmailPortsSetting.ToListAsync();
+        }
+
+        _dialogService.OnOpen += Open;
+        _dialogService.OnClose += Close;
+
+        ProgressBarVisible = false;
+
+    }
+
+
+    async Task OnCreateRow(EmailPortsSetting emailPortsSetting)
+    {
+
+        using (var context = _contextFactory.CreateDbContext())
+        {
+            context.Add(emailPortsSetting);
+            await context.SaveChangesAsync();
+            _notificationService.Notify(NotificationSeverity.Success, "Sukces", $"Dodano nowe ustawienia ", 3000);
+
+            EmailPortsSettings = await context.EmailPortsSetting.ToListAsync();
+        }
+
+
+
+
+
+
+    }
+
+    EmailPortsSetting emailPosrtSettingToInsert;
+
+
+    async Task SaveRow(EmailPortsSetting emailPortsSetting)
+    {
+        if (emailPortsSetting == emailPosrtSettingToInsert)
+        {
+
+            emailPosrtSettingToInsert = null;
+        }
+
+        await emailPortsSettingDataGrid.UpdateRow(emailPortsSetting);
+    }
+
+    async Task OnUpdateRow(EmailPortsSetting emailPortsSetting)
+    {
+        if (emailPortsSetting == emailPosrtSettingToInsert)
+        {
+            emailPosrtSettingToInsert = null;
+        }
+
+        using(var context = _contextFactory.CreateDbContext())
+        {
+            context.Update(emailPortsSetting);
+
+            await context.SaveChangesAsync();
+
+            _notificationService.Notify(NotificationSeverity.Success, "Sukces", "Dane zostały zaktualizowane", 3000);
+        }
+
+
+
+    }
+
+    async Task EditRow(EmailPortsSetting emailPortsSetting)
+    {
+        await emailPortsSettingDataGrid.EditRow(emailPortsSetting);
+    }
+
+    async Task InsertRow()
+    {
+        emailPosrtSettingToInsert = new EmailPortsSetting();
+        await emailPortsSettingDataGrid.InsertRow(emailPosrtSettingToInsert);
+    }
+
+
+
+    async Task CancelEdit(EmailPortsSetting emailPortsSetting)
+    {
+        if (emailPortsSetting == emailPosrtSettingToInsert)
+        {
+            emailPosrtSettingToInsert = null;
+        }
+
+        emailPortsSettingDataGrid.CancelEditRow(emailPortsSetting);
+
+        using(var context = _contextFactory.CreateDbContext())
+        {
+            var typeEntry = context.Entry(emailPortsSetting);
+            if (typeEntry.State == EntityState.Modified)
+            {
+                typeEntry.CurrentValues.SetValues(typeEntry);
+                typeEntry.State = EntityState.Unchanged;
+            }
+        }
+
+
+    }
+
+
+    async Task ShowDeleteDialog(EmailPortsSetting emailPortsSetting)
+    {
+        var result = await _dialogService.OpenAsync("Uwaga", ds =>
+    @<div>
+        <h3 class="mb-4 text-danger">Czy na pewno chcesz usunąć '@emailPortsSetting.Name'?</h3>
+        <div class="row">
+            <div class="col">
+                <RadzenButton Text="Usuń" Click="() => ds.Close(true)" Class="mr-1" ButtonStyle="ButtonStyle.Danger" />
+                <RadzenButton Text="Anuluj" Click="() => ds.Close(false)" ButtonStyle="ButtonStyle.Secondary" Class="mr-1" />
+            </div>
+        </div>
+    </div>);
+
+        if (result)
+        {
+            if (emailPortsSetting == emailPosrtSettingToInsert)
+            {
+                emailPosrtSettingToInsert = null;
+            }
+
+
+            using(var context = _contextFactory.CreateDbContext())
+            {
+                context.EmailPortsSetting.Remove(emailPortsSetting);
+                await context.SaveChangesAsync();
+                EmailPortsSettings = await context.EmailPortsSetting.ToListAsync();
+
+                _notificationService.Notify(NotificationSeverity.Success, "Sukces", $"Pomyślnie usunięto '{emailPortsSetting.Name}'", 3000);
+            }
+
+
+        }
+
+    }
+
+
+
+    void Open(string title, Type type, Dictionary<string, object> parameters, DialogOptions options) { }
+
+    void Close(dynamic result) { }
+
+    public void Dispose()
+    {
+        // The DialogService is a singleton so it is advisable to unsubscribe.
+        _dialogService.OnOpen -= Open;
+        _dialogService.OnClose -= Close;
+    }
+
+    void ShowEditTooltip(ElementReference elementReference, TooltipOptions options = null) => _tooltipService.Open(elementReference, "Edytuj", options);
+    void ShowCancelTooltip(ElementReference elementReference, TooltipOptions options = null) => _tooltipService.Open(elementReference, "Anuluj", options);
+    void ShowSaveTooltip(ElementReference elementReference, TooltipOptions options = null) => _tooltipService.Open(elementReference, "Zapisz", options);
+    void ShowDeleteTooltip(ElementReference elementReference, TooltipOptions options = null) => _tooltipService.Open(elementReference, "Usuń", options);
+
+}
+
+

@@ -1,0 +1,113 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <UserSecretsId>aspnet-MembersBlazorNet6-3608499B-AF3E-4574-A241-1A8489CFEECB</UserSecretsId>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Remove="Data\Models\" />
+    <None Remove="Data\Models\UnionInstitutionModels\" />
+    <None Remove="Radzen.Blazor" />
+    <None Remove="Syncfusion.Blazor" />
+    <None Remove="Microsoft.EntityFrameworkCore.SqlServer" />
+    <None Remove="Pages\NavMenus\" />
+    <None Remove="Pages\Admin\" />
+    <None Remove="Pages\Admin\TypeOfUnionInstitutions\" />
+    <None Remove="Pages\Admin\Institutions\" />
+    <None Remove="Data\Migrations\" />
+    <None Remove="Pages\Admin\Users\" />
+    <None Remove="Services\" />
+    <None Remove="Services\Validations\" />
+    <None Remove="MailKit" />
+    <None Remove="Microsoft.AspNetCore.Mvc.Core" />
+    <None Remove="Data\Models\Settings\" />
+    <None Remove="Pages\Admin\Settings\" />
+    <None Remove="Pages\Admin\Services\" />
+    <None Remove="Pages\User\" />
+    <None Remove="Pages\User\Institution\" />
+    <None Remove="Data\Models\MemberModels\" />
+    <None Remove="Pages\Admin\Institutions\Components\" />
+    <None Remove="Pages\User\UnionInstitutions\BranchPages\" />
+    <None Remove="Pages\User\UnionInstitutions\BranchPages\Components\" />
+    <None Remove="Services\AccessServices\" />
+    <None Remove="Pages\User\UnionInstitutions\DistrictPages\" />
+    <None Remove="Pages\User\UnionInstitutions\BranchPages\Fires\" />
+    <None Remove="Pages\User\UnionInstitutions\BranchPages\BranchData\" />
+    <None Remove="Data\Repositories\" />
+    <None Remove="Data\Repositories\IRepository\" />
+    <None Remove="Data\Repositories\Repository\" />
+    <None Remove="Pages\User\UnionInstitutions\BranchPages\Members\" />
+    <None Remove="Pages\User\UnionInstitutions\BranchPages\Members\Components\" />
+    <None Remove="Services\SearchingServices\" />
+    <None Remove="Services\SearchingServices\SearchingModels\" />
+    <None Remove="Pages\User\UnionInstitutions\BranchPages\Fires\Components\" />
+    <None Remove="Radzen.Blazor.GridExportOptions" />
+    <None Remove="DocumentFormat.OpenXml" />
+    <None Remove="Services\OtherServices\" />
+    <None Remove="ClosedXML" />
+    <None Remove="Microsoft.AspNet.SignalR.Core" />
+    <None Remove="Microsoft.Azure.SignalR" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Update="app.db" CopyToOutputDirectory="PreserveNewest" ExcludeFromSingleFile="true" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore" Version="6.0.1" />
+    <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="6.0.1" />
+    <PackageReference Include="Microsoft.AspNetCore.Identity.UI" Version="6.0.1" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="6.0.1" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="6.0.1" />
+    <PackageReference Include="Radzen.Blazor" Version="3.14.9" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="6.0.1" />
+    <PackageReference Include="System.Linq.Dynamic.Core" Version="1.2.15" />
+    <PackageReference Include="MailKit" Version="3.1.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.Core" Version="2.2.5" />
+    <PackageReference Include="ClosedXML" Version="0.95.4" />
+    <PackageReference Include="Microsoft.Azure.SignalR" Version="1.15.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Data\Models\" />
+    <Folder Include="Data\Models\UnionInstitutionModels\" />
+    <Folder Include="Pages\NavMenus\" />
+    <Folder Include="Pages\Admin\" />
+    <Folder Include="Pages\Admin\TypeOfUnionInstitutions\" />
+    <Folder Include="Pages\Admin\Institutions\" />
+    <Folder Include="Data\Migrations\" />
+    <Folder Include="Pages\Admin\Users\" />
+    <Folder Include="Services\" />
+    <Folder Include="Services\Validations\" />
+    <Folder Include="Data\Models\Settings\" />
+    <Folder Include="Pages\Admin\Settings\" />
+    <Folder Include="Pages\Admin\Services\" />
+    <Folder Include="Pages\User\" />
+    <Folder Include="Pages\User\UnionInstitutions\" />
+    <Folder Include="Data\Models\MemberModels\" />
+    <Folder Include="Pages\Admin\Institutions\Components\" />
+    <Folder Include="Pages\User\UnionInstitutions\BranchPages\" />
+    <Folder Include="Pages\User\UnionInstitutions\BranchPages\Components\" />
+    <Folder Include="Services\AccessServices\" />
+    <Folder Include="Pages\User\UnionInstitutions\DistrictPages\" />
+    <Folder Include="Pages\User\UnionInstitutions\BranchPages\BranchData\" />
+    <Folder Include="Data\Repositories\" />
+    <Folder Include="Data\Repositories\IRepository\" />
+    <Folder Include="Data\Repositories\Repository\" />
+    <Folder Include="Pages\User\UnionInstitutions\BranchPages\Members\" />
+    <Folder Include="Pages\User\UnionInstitutions\BranchPages\Members\Components\" />
+    <Folder Include="Services\SearchingServices\" />
+    <Folder Include="Services\SearchingServices\SearchingModels\" />
+    <Folder Include="Pages\User\UnionInstitutions\BranchPages\Fires\" />
+    <Folder Include="Pages\User\UnionInstitutions\BranchPages\Fires\Components\" />
+    <Folder Include="Services\ExportToExcel\" />
+    <Folder Include="wwwroot\css\BootstrapIcons\" />
+    <Folder Include="wwwroot\css\BootstrapIcons\fonts\" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Remove="wwwroot\css\BootstrapIcon\" />
+    <Content Remove="wwwroot\css\BootstrapIcons\fonts\" />
+  </ItemGroup>
+</Project>

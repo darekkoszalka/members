@@ -1,0 +1,33 @@
+﻿
+@layout BlankLayout
+@attribute [AllowAnonymous]
+@inject NavigationManager navigationManager
+
+<div class="container">
+    <div class="row">
+        <div class="col-sm-8 offset-sm-2">
+
+            <RadzenCard class="my-5 text-center ">
+                <h1 class="display-1 text-info">Members</h1>
+                <p class="my-3">Strona przeznaczona tylko dla zarejestrowanych użytkowników.</p>
+                <RadzenButton Click=@NavigateToLogin Text="Przejdź do strony logowania" class="col-sm-4 offset-sm-4" />
+            </RadzenCard>
+        </div>
+
+    </div>
+</div>
+
+
+
+
+
+
+@code {
+
+    private void NavigateToLogin()
+    {
+        navigationManager.NavigateTo("/Identity/Account/Login", true);
+    }
+
+}
+

@@ -1,0 +1,45 @@
+﻿@inherits LayoutComponentBase
+@inject IAccessService _accessService
+@inject NavigationManager _navigationManager
+
+<PageTitle>Members</PageTitle>
+
+<div class="page">
+    <RadzenDialog />
+    <RadzenTooltip />
+    <RadzenNotification />
+    <RadzenContextMenu />
+    <div class="sidebar">
+        <BranchUserMenu BranchId="branchId" />
+    </div>
+
+    <main>
+        <div class="top-row px-4 auth">
+            <LoginDisplay />
+
+        </div>
+
+        <article class="content px-4">
+
+            @Body
+        </article>
+    </main>
+</div>
+
+
+
+@code {
+    public int? branchId { get; set; }
+
+    protected override void OnParametersSet()
+    {
+        // pull out the "branchId" parameter from the route data
+        object id = null;
+        if ((this.Body.Target as RouteView)?.RouteData.RouteValues?.TryGetValue("branchId", out id) == true)
+        {
+            branchId = Int32.Parse(id?.ToString());
+        }
+
+    }
+}
+

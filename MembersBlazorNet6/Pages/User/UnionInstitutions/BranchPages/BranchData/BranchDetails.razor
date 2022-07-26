@@ -1,0 +1,93 @@
+﻿@page "/user/unionInstitutions/branchPages/Details/{branchId:int}"
+@inject IDbContextFactory<ApplicationDbContext> _contextFactory
+@inject NavigationManager _navigationManager
+@inject IAccessService _accessService
+@inject IUnionInstitutionRepository _unionInstitutionRepository
+
+<div class="container">
+    @if (ProgressBarVisible)
+    {
+        <RadzenProgressBar Value="100" ShowValue="false" Mode="ProgressBarMode.Indeterminate" />
+    }
+    else
+    {
+        <Breadcrumb Title="@Title" />
+        <div class="row my-5">
+            <div class="col-sm-6 mt-2">
+                <RadzenCard>
+                    @if (UnionInstitution != null)
+                    {
+                        <h4>Dane podstawowe</h4>
+                        <small class="text-secondary mt-2">Nazwa</small>
+                        <p>@UnionInstitution.FullName</p>
+                        <small class="text-secondary mt-2">Nazwa skrócona</small>
+                        <p>@UnionInstitution.ShortName</p>
+                        <small class="text-secondary mt-2">Miasto</small>
+                        <p>@UnionInstitution.City</p>
+                        <div class="col-sm-6 mt-3">
+                            <RadzenButton Text="Edytuj" Click="@(args => EditDefaultData(UnionInstitution.Id))" ButtonStyle="ButtonStyle.Secondary" />
+                        </div>
+                    }
+                </RadzenCard>
+            </div>
+            <div class="col-sm-6 mt-2">
+                <BranchAddressComponent UnionInstitutionAddress="UnionInstitutionAddress" UnionInstitution="UnionInstitution" branchId="@branchId" />
+            </div>
+
+            <div class="col-sm-6 mt-2">
+                <BranchContactComponent UnionInstitution="UnionInstitution" UnionInstitutionContact="UnionInstitutionContact" branchId="@branchId" />
+
+            </div>
+
+        </div>
+    }
+</div>
+
+
+@code {
+    [Parameter]
+    public int? branchId { get; set; }
+    private string Title = "";
+    public bool ProgressBarVisible { get; set; }
+    public UnionInstitution UnionInstitution { get; set; } = new UnionInstitution();
+    public UnionInstitutionAddress UnionInstitutionAddress { get; set; }
+    public UnionInstitutionContact UnionInstitutionContact { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        ProgressBarVisible = true;
+
+        #region checkAccess
+        if (branchId == null)
+        {
+            _navigationManager.NavigateTo("/NotFoundPage");
+        }
+        var result = await _accessService.AccessByInsitutionId(branchId);
+        if (result)
+        {
+            UnionInstitution = await _unionInstitutionRepository.GetUnionInstitutionById(branchId);
+        }
+        if (UnionInstitution == null)
+        {
+            _navigationManager.NavigateTo("/NotFoundPage");
+        }
+
+        #endregion
+        using (var _context = _contextFactory.CreateDbContext())
+        {
+            UnionInstitutionAddress = await _context.UnionInstitutionAddress
+                            .FirstOrDefaultAsync(a => a.UnionInstitutionId == UnionInstitution.Id);
+
+            UnionInstitutionContact = await _context.UnionInstitutionContact
+                .FirstOrDefaultAsync(a => a.UnionInstitutionId == UnionInstitution.Id);
+        }
+
+        Title = $"{UnionInstitution.FullName}";
+        ProgressBarVisible = false;
+    }
+    async Task EditDefaultData(int? branchId)
+    {
+        _navigationManager.NavigateTo($"/user/unionInstitutions/branchPages/editDefaultData/{branchId}");
+    }
+}
+

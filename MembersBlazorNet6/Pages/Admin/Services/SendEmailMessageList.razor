@@ -1,0 +1,179 @@
+﻿@page "/admin/services/sendEmailMessageList"
+
+@inject ApplicationDbContext _context
+@inject NotificationService _notificationService
+@inject TooltipService _tooltipService
+@inject NavigationManager _navigationManager
+@inject DialogService _dialogService
+@inject IDbContextFactory<ApplicationDbContext> _contextFactory
+
+<div class="container">
+    @if (ProgressBarVisible)
+    {
+        <RadzenProgressBar Value="100" ShowValue="false" Mode="ProgressBarMode.Indeterminate" />
+    }
+    else
+    {
+        <Breadcrumb Title="@Title" />
+
+
+        <RadzenDataGrid @ref="@emailMessagesGrid" Data="@Messages" TItem="EmailMessage" AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" AllowPaging="true" AllowSorting="true" FilterMode="FilterMode.Simple" ExpandMode="DataGridExpandMode.Single">
+            <EmptyTemplate>
+                <p style="color: lightgrey; font-size: 24px; text-align: center; margin: 2rem;">Brak danych.</p>
+            </EmptyTemplate>
+            <Template Context="message">
+
+                <RadzenCard>
+                    <div class="row">
+
+                        <div class="col-12">
+                            <h4>@message.Title</h4>
+                            <small>Wysłane do @message.AdresEmail</small>
+                            <small>Data wysłania: @message.EmailDate.ToString("dd-MM-yyyy HH:mm")</small>
+                            <div>
+                                @((MarkupString)message.Content)
+                            </div>
+                        </div>
+
+                    </div>
+                </RadzenCard>
+
+            </Template>
+            <Columns>
+                <RadzenDataGridColumn TItem="EmailMessage" Property="Title" Title="Temat">
+                    <Template Context="message">
+                        @message.Title
+                    </Template>
+                </RadzenDataGridColumn>
+                <RadzenDataGridColumn TItem="EmailMessage" Property="EmailDate" Title="Data">
+                    <Template Context="message">
+                        @message.EmailDate.ToString("dd-MM-yyyy")
+                    </Template>
+                </RadzenDataGridColumn>
+                <RadzenDataGridColumn TItem="EmailMessage" Property="Adresat" Title="Wysłane do">
+                    <Template Context="message">
+                        @message.Adresat
+                    </Template>
+
+                </RadzenDataGridColumn>
+                <RadzenDataGridColumn TItem="EmailMessage" Property="Adresat" Title="Wysłane do">
+                    <Template Context="message">
+                        @message.AdresEmail
+                    </Template>
+
+                </RadzenDataGridColumn>
+
+                <RadzenDataGridColumn TItem="EmailMessage" Title="Akcje" Sortable="false">
+                    <Template Context="message">
+
+                        <RadzenButton ButtonStyle="ButtonStyle.Danger" Icon="delete" Size="ButtonSize.Medium" Class="m-1" Click="@(args => ShowDeleteDialog(message))" @onclick:stopPropagation="true" MouseEnter="@(args => ShowDeleteTooltip(args))">
+                        </RadzenButton>
+                    </Template>
+                </RadzenDataGridColumn>
+
+
+
+            </Columns>
+        </RadzenDataGrid>
+    }
+</div>
+
+
+
+
+
+
+
+@code {
+
+    RadzenDataGrid<EmailMessage> emailMessagesGrid;
+
+    RadzenButton radzenButton;
+
+
+    private string Title = "";
+
+    public bool ProgressBarVisible { get; set; }
+
+    IEnumerable<EmailMessage> Messages;
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        ProgressBarVisible = true;
+
+
+
+        Title = "Wiadomości wysłane";
+
+        using(var _context = _contextFactory.CreateDbContext())
+        {
+            Messages = await _context.EmailMessages.OrderByDescending(m => m.EmailDate).ToListAsync();
+        }
+
+
+
+        _dialogService.OnOpen += Open;
+        _dialogService.OnClose += Close;
+
+        ProgressBarVisible = false;
+
+    }
+
+
+
+    async Task ShowDeleteDialog(EmailMessage message)
+    {
+        var result = await _dialogService.OpenAsync("Uwaga", ds =>
+    @<div>
+        <h3 class="mb-4 text-danger">Czy na pewno chcesz usunąć '@message.Title'?</h3>
+        <div class="row">
+            <div class="col">
+                <RadzenButton Text="Usuń" Click="() => ds.Close(true)" Class="mr-1" ButtonStyle="ButtonStyle.Danger" />
+                <RadzenButton Text="Anuluj" Click="() => ds.Close(false)" ButtonStyle="ButtonStyle.Secondary" Class="mr-1" />
+            </div>
+        </div>
+    </div>);
+
+        if (result)
+        {
+            using(var _context = _contextFactory.CreateDbContext())
+            {
+                _context.EmailMessages.Remove(message);
+
+                await _context.SaveChangesAsync();
+
+
+                Messages = await _context.EmailMessages.OrderByDescending(m => m.EmailDate).ToListAsync();
+            }
+
+
+            _notificationService.Notify(NotificationSeverity.Success, "Sukces", $"Pomyślnie usunięto '{message.Title}'", 3000);
+        }
+
+    }
+
+
+
+    void Open(string title, Type type, Dictionary<string, object> parameters, DialogOptions options) { }
+
+    void Close(dynamic result) { }
+
+    public void Dispose()
+    {
+        // The DialogService is a singleton so it is advisable to unsubscribe.
+        _dialogService.OnOpen -= Open;
+        _dialogService.OnClose -= Close;
+    }
+
+
+    void ShowDeleteTooltip(ElementReference elementReference, TooltipOptions options = null) => _tooltipService.Open(elementReference, "Usuń", options);
+
+}
+
+
+
+
+
+
+

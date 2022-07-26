@@ -1,0 +1,55 @@
+﻿<RadzenCard>
+    <h4>Dane kontaktowe</h4>
+    @if (MemberContact != null)
+    {
+        @if (MemberContact.Phone != null)
+        {
+            <p><span class="text-primary"><RadzenIcon Icon="phone" /></span> @MemberContact.Phone</p>
+        }
+        else
+        {
+            <p><span class="text-primary"><RadzenIcon Icon="phone" /></span> Brak</p>
+        }
+        @if (MemberContact.Email != null)
+        {
+            <p><span class="text-primary"><RadzenIcon Icon="email" /></span> @MemberContact.Email</p>
+        }
+        else
+        {
+            <p><span class="text-primary"><RadzenIcon Icon="email" /></span> Brak</p>
+        }
+        @if (MemberContact.ApartamentNumber != null && MemberContact.ApartamentNumber != "")
+        {
+            <p><span class="text-primary"><RadzenIcon Icon="home" /></span> @MemberContact.Street @MemberContact.HouseNumber/@MemberContact.ApartamentNumber</p>
+        }
+        else
+        {
+            <p><span class="text-primary"><RadzenIcon Icon="home" /></span>@MemberContact.Street @MemberContact.HouseNumber</p>
+        }
+        <p>@MemberContact.PostCode @MemberContact.City</p>
+
+        <div class="col-sm-6 mt-3">
+            <RadzenButton Text="Edytuj" Click="@(args => EditContact.InvokeAsync(MemberContact))" ButtonStyle="ButtonStyle.Secondary" />
+        </div>
+    }
+    else
+    {
+        <div class="col-sm-6 mt-3">
+            <RadzenButton Text="Dodaj" Click="@(() => AddContact.InvokeAsync(Member))" ButtonStyle="ButtonStyle.Secondary" />
+        </div>
+    }
+</RadzenCard>
+
+
+@code {
+
+    [Parameter]
+    public MemberContact MemberContact { get; set; }
+    [Parameter]
+    public Member Member { get; set; }
+    [Parameter]
+    public EventCallback<Member> AddContact { get; set; }
+    [Parameter]
+    public EventCallback<MemberContact> EditContact { get; set; }
+}
+

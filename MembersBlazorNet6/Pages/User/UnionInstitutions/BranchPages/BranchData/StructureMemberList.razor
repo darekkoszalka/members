@@ -1,0 +1,247 @@
+﻿@page "/user/unionInstitution/branchPages/branchData/structureMemberList/{structureId:int}/{branchId:int}"
+@inject IDbContextFactory<ApplicationDbContext> _contextFactory
+@inject IAccessService _accessService
+@inject NavigationManager _navigationManager
+@inject NotificationService _notificationService
+@inject IUnionStructureRepository _unionStructureRepository
+@inject IMemberRepository _memberRepository
+@inject IUnionInstitutionRepository _unionInstitutionRepository
+
+<div class="container">
+    @if (ProgressBarVisible)
+    {
+        <RadzenProgressBar Value="100" ShowValue="false" Mode="ProgressBarMode.Indeterminate" />
+    }
+    else
+    {
+        <Breadcrumb Title="@Title" />
+        if (AddMemberToStructureVisible)
+        {
+            <div class="row my-5">
+                <div class="col-sm-8 offset-sm-2">
+                    <RadzenCard>
+                        <h3>@UnionStructure.UnionStructureType.Name - dodaj nową osobę</h3>
+                        <EditForm Model="SearchMemberByPeselModel" OnValidSubmit="SearchMemberByPesel">
+                            <DataAnnotationsValidator />
+                            <div class="form-group row my-3">
+                                <div class="col-md-6">
+                                    <small class="text-secondary d-block">Podaj nr Pesel osoby*</small>
+                                    <RadzenMask @bind-Value="SearchMemberByPeselModel.Pesel" Placeholder="Wpisz nr pesel" Class="form-control" Mask="***********" CharacterPattern="[0-9]" />
+                                    <ValidationMessage For="() => SearchMemberByPeselModel.Pesel" />
+                                </div>
+                            </div>
+                            <div class="form group col-md-6">
+                                <RadzenButton ButtonType="ButtonType.Submit" ButtonStyle="ButtonStyle.Success" Text="Wyszukaj" />
+                                <RadzenButton ButtonStyle="ButtonStyle.Secondary" Text="Anuluj" Click="@NoAddMemberToStructure" />
+                            </div>
+                        </EditForm>
+                    </RadzenCard>
+                </div>
+            </div>
+
+        }
+        if (AddSearchedMemberVisible)
+        {
+            <div class="row my-5">
+                <div class="col-sm-8 offset-sm-2">
+                    <RadzenCard>
+                        <div class="text-center">
+                            <h4>@UnionStructure.UnionStructureType.Name - dodajesz osobę:</h4>
+                            <p>@Member.FullName</p>
+                        </div>
+                        <EditForm Model="UnionStructureFunction" OnValidSubmit="CreateStructureFunction">
+                            <DataAnnotationsValidator />
+                            <div class="form-group row">
+                                <div class="col-md-6">
+                                    <small class="text-secondary d-block">Funkcja*</small>
+                                    <RadzenDropDown AllowClear="true" AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" @bind-Value=@UnionStructureFunction.UnionFunctionTypeId Placeholder="Wybierz funkcję"
+                                                    Data=@UnionFunctionTypes TextProperty="Name" ValueProperty="Id" Class="w-100" />
+                                    <ValidationMessage For="() => UnionStructureFunction.UnionFunctionTypeId" />
+                                </div>
+                            </div>
+                            <RadzenButton ButtonType="ButtonType.Submit" ButtonStyle="ButtonStyle.Success" Text="Zapisz" />
+                            <RadzenButton ButtonStyle="ButtonStyle.Secondary" Text="Anuluj" Click="@NoSaveMemberToStructure" />
+                        </EditForm>
+                    </RadzenCard>
+                </div>
+
+            </div>
+        }
+        <RadzenButton Text="Dodaj nową osobę" Icon="add_circle_outline" Click="@ShowAddMemberForm" ButtonStyle="ButtonStyle.Primary" Style="margin-bottom: 20px;" Disabled=@(AddMeberButtonEnable == false) />
+        <RadzenDataGrid @ref="@structureFunctionGrid" Data="@MembersInStructure" TItem="UnionStructureFunction" AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" AllowPaging="true" AllowSorting="true" FilterMode="FilterMode.Simple" ExpandMode="DataGridExpandMode.Single">
+            <EmptyTemplate>
+                <p style="color: lightgrey; font-size: 24px; text-align: center; margin: 2rem;">Brak danych.</p>
+            </EmptyTemplate>
+            <Template Context="structure">
+                @{
+                    <div class="row">
+                        <div class="col-sm-6">
+                            @using (var _context = _contextFactory.CreateDbContext())
+                            {
+                                var memberContact = _context.MemberContact
+                                        .Include(c => c.Member)
+                                        .FirstOrDefault(c => c.MemberId == structure.MemberId);
+                                <MemberContactComponent Member="structure.Member" MemberContact="memberContact" />
+                            }
+                        </div>
+                    </div>
+                }
+            </Template>
+            <Columns>
+                <RadzenDataGridColumn TItem="UnionStructureFunction" Property="UnionStructureFunction.Member.FullName" Title="Nazwisko i imię">
+                    <Template Context="structure">
+                        @structure.Member.FullName
+                    </Template>
+
+                </RadzenDataGridColumn>
+                <RadzenDataGridColumn TItem="UnionStructureFunction" Property="UnionStructureFunction.Member.FullName" Title="Funkcja">
+                    <Template Context="structure">
+                        @structure.UnionFunctionType.Name
+                    </Template>
+                </RadzenDataGridColumn>
+                <RadzenDataGridColumn TItem="UnionStructureFunction" Property="UnionStructureFunction.Member.FullName" Title="Ognisko">
+                    <Template Context="structure">
+                        @structure.Member.UnionInstitution.ShortName
+                    </Template>
+                </RadzenDataGridColumn>
+                @*<RadzenGridColumn TItem="UnionInstitution" Title="Akcje" Sortable="false">
+                        <Template Context="unionInstitution">
+                            <RadzenButton ButtonStyle="ButtonStyle.Info" Icon="info" Size="ButtonSize.Medium" Class="m-1" Click="Details" @onclick:stopPropagation="true" MouseEnter="@(args => ShowDetailsTooltip(args))">
+                            </RadzenButton>
+                            <RadzenButton Icon="edit" Size="ButtonSize.Medium" Click="@(args => EditRow(unionInstitution))" @onclick:stopPropagation="true" MouseEnter="@(args => ShowEditTooltip(args))" />
+                            <RadzenButton ButtonStyle="ButtonStyle.Danger" Icon="delete" Size="ButtonSize.Medium" Class="m-1" Click="@(args => ShowDeleteDialog(unionInstitution))" @onclick:stopPropagation="true" MouseEnter="@(args => ShowDeleteTooltip(args))">
+                            </RadzenButton>
+                        </Template>
+                    </RadzenGridColumn>*@
+
+
+
+            </Columns>
+        </RadzenDataGrid>
+    }
+
+
+
+</div>
+@code {
+
+    [Parameter]
+    public int structureId { get; set; }
+    [Parameter]
+    public int? branchId { get; set; }
+    private string Title = "";
+    public bool ProgressBarVisible { get; set; }
+    public bool AddMemberToStructureVisible { get; set; } = false;
+    public bool AddSearchedMemberVisible { get; set; } = false;
+    public bool AddMeberButtonEnable { get; set; } = true;
+    public UnionInstitution? UnionInstitution { get; set; } = new UnionInstitution();
+    public UnionStructure UnionStructure { get; set; }
+    public IList<UnionStructureFunction> MembersInStructure { get; set; }
+    public UnionStructureFunction UnionStructureFunction { get; set; } = new UnionStructureFunction();
+    public Member Member { get; set; }
+    public SearchMemberByPesel SearchMemberByPeselModel { get; set; } = new SearchMemberByPesel();
+    public IList<UnionFunctionType> UnionFunctionTypes { get; set; }
+    RadzenDataGrid<UnionStructureFunction> structureFunctionGrid;
+    public UserAccess UserAccess { get; set; }
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        ProgressBarVisible = true;
+        if (branchId == null)
+        {
+            _navigationManager.NavigateTo("/NotFoundPage");
+        }
+        var result = await _accessService.AccessByInsitutionId(branchId);
+        if (result)
+        {
+            UnionInstitution = await _unionInstitutionRepository.GetUnionInstitutionById(branchId);
+        }
+        if (UnionInstitution == null)
+        {
+            _navigationManager.NavigateTo("/NotFoundPage");
+        }
+        if (structureId == null)
+        {
+            _navigationManager.NavigateTo("/NotFoundPage");
+        }
+
+        UnionStructure = await _unionStructureRepository.GetUnionStructureById(structureId);
+        if (UnionStructure == null)
+        {
+            _navigationManager.NavigateTo("/NotFoundPage");
+        }
+
+        MembersInStructure = await _unionStructureRepository.MembersInStructureByStructureId(structureId);
+        Title = $"{UnionInstitution.FullName} - {UnionStructure.UnionStructureType.Name}";
+        ProgressBarVisible = false;
+    }
+
+    async Task ShowAddMemberForm()
+    {
+        AddMemberToStructureVisible = true;
+        AddMeberButtonEnable = false;
+    }
+
+    async Task NoAddMemberToStructure()
+    {
+        AddMemberToStructureVisible = false;
+        AddMeberButtonEnable = true;
+    }
+
+    async Task SearchMemberByPesel()
+    {
+        Member = await _memberRepository.GetMemberByPesel(SearchMemberByPeselModel.Pesel);
+        if (Member != null)
+        {
+            AddMemberToStructureVisible = false;
+            SearchMemberByPeselModel.Pesel = "";
+            AddSearchedMemberVisible = true;
+            UnionFunctionTypes = await _unionStructureRepository.GetUnionFunctionTypes();
+            UnionStructureFunction.UnionStructureId = UnionStructure.Id;
+            UnionStructureFunction.MemberId = Member.Id;
+        }
+        else
+        {
+            _notificationService.Notify(NotificationSeverity.Error, "Błąd", "Podany pesel nie istnieje", 3000);
+            return;
+        }
+    }
+
+    async Task CreateStructureFunction()
+    {
+        AddMemberToStructureVisible = false;
+        AddMeberButtonEnable = false;
+        using (var _context = _contextFactory.CreateDbContext())
+        {
+            var functionfromDb = await _context.UnionStructureFunction
+                .FirstOrDefaultAsync(f => f.MemberId == UnionStructureFunction.MemberId && f.UnionStructureId == UnionStructureFunction.UnionStructureId);
+            if (functionfromDb != null)
+            {
+                _notificationService.Notify(NotificationSeverity.Error, "Błąd", "Osoba jest już dodana dodana", 3000);
+                return;
+            }
+        }
+
+        var result = await _unionStructureRepository.AddMemberToStructure(UnionStructureFunction);
+        if (result)
+        {
+            _notificationService.Notify(NotificationSeverity.Success, "Sukces", $"Osoba została dodana", 3000);
+            MembersInStructure = await _unionStructureRepository.MembersInStructureByStructureId(structureId);
+            AddMeberButtonEnable = true;
+        }
+        else
+        {
+            _notificationService.Notify(NotificationSeverity.Error, "Błąd", "Osoba nie została dodana", 3000);
+            return;
+        }
+        AddSearchedMemberVisible = false;
+    }
+
+    async Task NoSaveMemberToStructure()
+    {
+        AddSearchedMemberVisible = false;
+        AddMemberToStructureVisible = false;
+        AddMeberButtonEnable = true;
+    }
+}

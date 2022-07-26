@@ -1,0 +1,171 @@
+﻿@page "/admin/users/userUpsert/{UnionInstitutionId:int}"
+@using System;
+@using System.Text;
+@using System.Text.Encodings.Web;
+@using Microsoft.AspNetCore.WebUtilities;
+@using Microsoft.AspNetCore.Mvc;
+@using Microsoft.AspNetCore.Mvc.RazorPages;
+
+@inject NavigationManager _navigationManager
+@inject ApplicationDbContext _context
+@inject UserManager<ApplicationUser> _userManager
+@inject NotificationService _notificationService
+
+@if (ProgressBarVisible)
+{
+    <RadzenProgressBar Value="100" ShowValue="false" Mode="ProgressBarMode.Indeterminate" />
+}
+else
+{
+    <Breadcrumb Title="@Title" />
+    <div class="row">
+        <div class="col-sm-8 offset-sm-2 my-3">
+            <RadzenCard>
+
+                <EditForm Model="@ApplicationUser" OnValidSubmit="@Upsert">
+
+                    <DataAnnotationsValidator />
+                    @*<InputNumber @bind-Value="ApplicationUser.UnionIntitutionId" class="d-none" />*@
+                    <div class="form-group">
+                        <small class="text-secondary d-block">Imię</small>
+                        <RadzenTextBox @bind-Value="ApplicationUser.FirstName" Placeholder="Imię" Class="form-control" />
+                        <ValidationMessage For="() => ApplicationUser.FirstName" />
+                    </div>
+                    <div class="form-group">
+                        <small class="text-secondary d-block">Nazwisko</small>
+                        <RadzenTextBox @bind-Value="ApplicationUser.LastName" Placeholder="Nazwisko" Class="form-control" />
+                        <ValidationMessage For="() => ApplicationUser.LastName" />
+                    </div>
+                    <div class="form-group">
+                        <small class="text-secondary d-block">Email</small>
+                        <RadzenTextBox @bind-Value="ApplicationUser.Email" Placeholder="Imię" Class="form-control" />
+                        <ValidationMessage For="() => ApplicationUser.Email" />
+                    </div>
+
+                    <div class="form-group">
+                        <small class="text-secondary d-block">Telefon</small>
+                        <RadzenMask @bind-Value="ApplicationUser.PhoneNumber" Mask="*********" CharacterPattern="[0-9]" Placeholder="np. 322332323" Class="form-control" />
+                        <ValidationMessage For="() => ApplicationUser.PhoneNumber" />
+                    </div>
+                    <div class="form-group">
+                        <small class="text-secondary d-block">Telefon</small>
+                        <RadzenRadioButtonList @bind-Value=@RoleName Data="@Roles" TextProperty="Name" ValueProperty="Name" TValue="string"
+                                               Change=@(args => RoleChange(args))>
+                        </RadzenRadioButtonList>
+                    </div>
+                    <div class="mt-3">
+                        <RadzenButton ButtonType="ButtonType.Submit" ButtonStyle="ButtonStyle.Success" Text="Zapisz" />
+                        <RadzenButton ButtonStyle="ButtonStyle.Secondary" Text="Anuluj" Click="@(args => BackToUserList(ApplicationUser))" />
+
+                    </div>
+
+                </EditForm>
+            </RadzenCard>
+        </div>
+
+    </div>
+}
+
+
+
+
+
+
+
+@code {
+
+    [Parameter]
+    public int? UnionInstitutionId { get; set; }
+
+    public UnionInstitution UnionInstitution { get; set; }
+
+
+    public ApplicationUser ApplicationUser { get; set; }
+
+    private string Title { get; set; } = "";
+
+    public bool ProgressBarVisible { get; set; }
+
+    private string RoleName = RoleSD.UserAdmin;
+
+    public class Role
+    {
+        public string Name { get; set; }
+    }
+
+    IEnumerable<Role> Roles = new Role[]
+    {
+        new Role{ Name = RoleSD.SuperAdmin},
+        new Role{ Name = RoleSD.Admin},
+        new Role{ Name = RoleSD.UserAdmin},
+        new Role{ Name = RoleSD.User},
+
+
+
+                        };
+
+    protected override async Task OnInitializedAsync()
+    {
+        ProgressBarVisible = true;
+        if (UnionInstitutionId != null)
+        {
+            ApplicationUser = new ApplicationUser();
+            UnionInstitution = await _context.UnionInstitution
+            .FirstOrDefaultAsync(u => u.Id == UnionInstitutionId);
+
+            Title = $"{UnionInstitution.FullName} - Dodaj nowego użytkownika";
+
+
+        }
+        else
+        {
+            Title = "Edytuj użytkownika";
+        }
+
+        ProgressBarVisible = false;
+    }
+
+    void RoleChange(string role)
+    {
+        RoleName = role;
+    }
+
+    async Task Upsert()
+    {
+        @*if (UnionInstitutionId != null)
+            {
+
+                ApplicationUser.UserName = ApplicationUser.Email;
+                ApplicationUser.EmailConfirmed = true;
+                ApplicationUser.RegisterDate = DateTime.Now;
+
+                var GeneratePassword = PasswordGenerator.GeneratePassword(true, true, true, true, 8);
+
+                var result = await _userManager.CreateAsync(ApplicationUser, "DupaJas1!");
+                if (result.Succeeded)
+                {
+                    await _userManager.AddToRoleAsync(ApplicationUser, RoleName);
+
+                    var code = await _userManager.GenerateEmailConfirmationTokenAsync(ApplicationUser);
+                    code = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));
+                    var callbackUrl = Url.Page(
+                        "/Account/ConfirmEmail",
+                        pageHandler: null,
+                        values: new { area = "Identity", userId = ApplicationUser.Id, code = code, returnUrl = },
+                        protocol: Request.Scheme);
+
+                    _notificationService.Notify(NotificationSeverity.Success, "Sukces", $"Pomyślnie dodano użytkownika {ApplicationUser.FirstName} {ApplicationUser.LastName}", 3000);
+                    _navigationManager.NavigateTo($"/admin/users/usersList/{ApplicationUser.UnionIntitutionId}");
+                }
+            }*@
+
+    }
+
+
+    async Task BackToUserList(ApplicationUser applicationUser)
+    {
+        @*_navigationManager.NavigateTo($"/admin/users/usersList/{applicationUser.UnionIntitutionId}");*@
+    }
+
+}
+

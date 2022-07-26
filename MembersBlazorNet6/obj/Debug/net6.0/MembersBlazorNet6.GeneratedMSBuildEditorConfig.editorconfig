@@ -1,0 +1,452 @@
+is_global = true
+build_property.TargetFramework = net6.0
+build_property.TargetPlatformMinVersion = 
+build_property.UsingMicrosoftNETSdkWeb = true
+build_property.ProjectTypeGuids = 
+build_property.InvariantGlobalization = 
+build_property.PlatformNeutralAssembly = 
+build_property._SupportedPlatformList = Linux,macOS,Windows
+build_property.RootNamespace = MembersBlazorNet6
+build_property.RootNamespace = MembersBlazorNet6
+build_property.ProjectDir = /Users/dariuszkoszalka/Documents/Programowianie/Programy w budowie/MembersBlazorNet6/MembersBlazorNet6/
+build_property.RazorLangVersion = 6.0
+build_property.SupportLocalizedComponentNames = 
+build_property.GenerateRazorMetadataSourceChecksumAttributes = 
+build_property.MSBuildProjectDirectory = /Users/dariuszkoszalka/Documents/Programowianie/Programy w budowie/MembersBlazorNet6/MembersBlazorNet6
+build_property._RazorSourceGeneratorDebug = 
+
+[/Users/dariuszkoszalka/Documents/Programowianie/Programy w budowie/MembersBlazorNet6/MembersBlazorNet6/App.razor]
+build_metadata.AdditionalFiles.TargetPath = QXBwLnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[/Users/dariuszkoszalka/Documents/Programowianie/Programy w budowie/MembersBlazorNet6/MembersBlazorNet6/Pages/Admin/AdminStartPage.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXMvQWRtaW4vQWRtaW5TdGFydFBhZ2UucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[/Users/dariuszkoszalka/Documents/Programowianie/Programy w budowie/MembersBlazorNet6/MembersBlazorNet6/Pages/Admin/Institutions/AddressUpsert.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXMvQWRtaW4vSW5zdGl0dXRpb25zL0FkZHJlc3NVcHNlcnQucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[/Users/dariuszkoszalka/Documents/Programowianie/Programy w budowie/MembersBlazorNet6/MembersBlazorNet6/Pages/Admin/Institutions/BranchList.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXMvQWRtaW4vSW5zdGl0dXRpb25zL0JyYW5jaExpc3QucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[/Users/dariuszkoszalka/Documents/Programowianie/Programy w budowie/MembersBlazorNet6/MembersBlazorNet6/Pages/Admin/Institutions/Components/AddressComponent.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXMvQWRtaW4vSW5zdGl0dXRpb25zL0NvbXBvbmVudHMvQWRkcmVzc0NvbXBvbmVudC5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
+[/Users/dariuszkoszalka/Documents/Programowianie/Programy w budowie/MembersBlazorNet6/MembersBlazorNet6/Pages/Admin/Institutions/Components/ContactUnionComponent.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXMvQWRtaW4vSW5zdGl0dXRpb25zL0NvbXBvbmVudHMvQ29udGFjdFVuaW9uQ29tcG9uZW50LnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[/Users/dariuszkoszalka/Documents/Programowianie/Programy w budowie/MembersBlazorNet6/MembersBlazorNet6/Pages/Admin/Institutions/ContactUpsert.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXMvQWRtaW4vSW5zdGl0dXRpb25zL0NvbnRhY3RVcHNlcnQucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[/Users/dariuszkoszalka/Documents/Programowianie/Programy w budowie/MembersBlazorNet6/MembersBlazorNet6/Pages/Admin/Institutions/Details.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXMvQWRtaW4vSW5zdGl0dXRpb25zL0RldGFpbHMucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[/Users/dariuszkoszalka/Documents/Programowianie/Programy w budowie/MembersBlazorNet6/MembersBlazorNet6/Pages/Admin/Institutions/DistrictList.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXMvQWRtaW4vSW5zdGl0dXRpb25zL0Rpc3RyaWN0TGlzdC5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
+[/Users/dariuszkoszalka/Documents/Programowianie/Programy w budowie/MembersBlazorNet6/MembersBlazorNet6/Pages/Admin/Institutions/EditDefaultData.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXMvQWRtaW4vSW5zdGl0dXRpb25zL0VkaXREZWZhdWx0RGF0YS5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
+[/Users/dariuszkoszalka/Documents/Programowianie/Programy w budowie/MembersBlazorNet6/MembersBlazorNet6/Pages/Admin/Institutions/FireList.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXMvQWRtaW4vSW5zdGl0dXRpb25zL0ZpcmVMaXN0LnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[/Users/dariuszkoszalka/Documents/Programowianie/Programy w budowie/MembersBlazorNet6/MembersBlazorNet6/Pages/Admin/Institutions/UnionInstitutionUsersList.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXMvQWRtaW4vSW5zdGl0dXRpb25zL1VuaW9uSW5zdGl0dXRpb25Vc2Vyc0xpc3QucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[/Users/dariuszkoszalka/Documents/Programowianie/Programy w budowie/MembersBlazorNet6/MembersBlazorNet6/Pages/Admin/Services/SendEmailMessageList.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXMvQWRtaW4vU2VydmljZXMvU2VuZEVtYWlsTWVzc2FnZUxpc3QucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[/Users/dariuszkoszalka/Documents/Programowianie/Programy w budowie/MembersBlazorNet6/MembersBlazorNet6/Pages/Admin/Services/ServicesList.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXMvQWRtaW4vU2VydmljZXMvU2VydmljZXNMaXN0LnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[/Users/dariuszkoszalka/Documents/Programowianie/Programy w budowie/MembersBlazorNet6/MembersBlazorNet6/Pages/Admin/Settings/EmailSetting.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXMvQWRtaW4vU2V0dGluZ3MvRW1haWxTZXR0aW5nLnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[/Users/dariuszkoszalka/Documents/Programowianie/Programy w budowie/MembersBlazorNet6/MembersBlazorNet6/Pages/Admin/Settings/SettingsList.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXMvQWRtaW4vU2V0dGluZ3MvU2V0dGluZ3NMaXN0LnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[/Users/dariuszkoszalka/Documents/Programowianie/Programy w budowie/MembersBlazorNet6/MembersBlazorNet6/Pages/Admin/Users/UsersList.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXMvQWRtaW4vVXNlcnMvVXNlcnNMaXN0LnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[/Users/dariuszkoszalka/Documents/Programowianie/Programy w budowie/MembersBlazorNet6/MembersBlazorNet6/Pages/Admin/Users/UserUpsert.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXMvQWRtaW4vVXNlcnMvVXNlclVwc2VydC5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
+[/Users/dariuszkoszalka/Documents/Programowianie/Programy w budowie/MembersBlazorNet6/MembersBlazorNet6/Pages/Admin/_Imports.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXMvQWRtaW4vX0ltcG9ydHMucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[/Users/dariuszkoszalka/Documents/Programowianie/Programy w budowie/MembersBlazorNet6/MembersBlazorNet6/Pages/Index.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXMvSW5kZXgucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[/Users/dariuszkoszalka/Documents/Programowianie/Programy w budowie/MembersBlazorNet6/MembersBlazorNet6/Pages/NotFoundPage.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXMvTm90Rm91bmRQYWdlLnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[/Users/dariuszkoszalka/Documents/Programowianie/Programy w budowie/MembersBlazorNet6/MembersBlazorNet6/Pages/StartPage.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXMvU3RhcnRQYWdlLnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[/Users/dariuszkoszalka/Documents/Programowianie/Programy w budowie/MembersBlazorNet6/MembersBlazorNet6/Pages/User/UnionInstitutions/BranchPages/BranchData/BranchAddressUpsert.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXMvVXNlci9Vbmlvbkluc3RpdHV0aW9ucy9CcmFuY2hQYWdlcy9CcmFuY2hEYXRhL0JyYW5jaEFkZHJlc3NVcHNlcnQucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[/Users/dariuszkoszalka/Documents/Programowianie/Programy w budowie/MembersBlazorNet6/MembersBlazorNet6/Pages/User/UnionInstitutions/BranchPages/BranchData/BranchContactUpsert.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXMvVXNlci9Vbmlvbkluc3RpdHV0aW9ucy9CcmFuY2hQYWdlcy9CcmFuY2hEYXRhL0JyYW5jaENvbnRhY3RVcHNlcnQucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[/Users/dariuszkoszalka/Documents/Programowianie/Programy w budowie/MembersBlazorNet6/MembersBlazorNet6/Pages/User/UnionInstitutions/BranchPages/BranchData/BranchDetails.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXMvVXNlci9Vbmlvbkluc3RpdHV0aW9ucy9CcmFuY2hQYWdlcy9CcmFuY2hEYXRhL0JyYW5jaERldGFpbHMucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[/Users/dariuszkoszalka/Documents/Programowianie/Programy w budowie/MembersBlazorNet6/MembersBlazorNet6/Pages/User/UnionInstitutions/BranchPages/BranchData/BranchIndex.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXMvVXNlci9Vbmlvbkluc3RpdHV0aW9ucy9CcmFuY2hQYWdlcy9CcmFuY2hEYXRhL0JyYW5jaEluZGV4LnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[/Users/dariuszkoszalka/Documents/Programowianie/Programy w budowie/MembersBlazorNet6/MembersBlazorNet6/Pages/User/UnionInstitutions/BranchPages/BranchData/BranchSections.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXMvVXNlci9Vbmlvbkluc3RpdHV0aW9ucy9CcmFuY2hQYWdlcy9CcmFuY2hEYXRhL0JyYW5jaFNlY3Rpb25zLnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[/Users/dariuszkoszalka/Documents/Programowianie/Programy w budowie/MembersBlazorNet6/MembersBlazorNet6/Pages/User/UnionInstitutions/BranchPages/BranchData/BranchStructures.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXMvVXNlci9Vbmlvbkluc3RpdHV0aW9ucy9CcmFuY2hQYWdlcy9CcmFuY2hEYXRhL0JyYW5jaFN0cnVjdHVyZXMucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[/Users/dariuszkoszalka/Documents/Programowianie/Programy w budowie/MembersBlazorNet6/MembersBlazorNet6/Pages/User/UnionInstitutions/BranchPages/BranchData/EditDefaultData.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXMvVXNlci9Vbmlvbkluc3RpdHV0aW9ucy9CcmFuY2hQYWdlcy9CcmFuY2hEYXRhL0VkaXREZWZhdWx0RGF0YS5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
+[/Users/dariuszkoszalka/Documents/Programowianie/Programy w budowie/MembersBlazorNet6/MembersBlazorNet6/Pages/User/UnionInstitutions/BranchPages/BranchData/StructureMemberList.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXMvVXNlci9Vbmlvbkluc3RpdHV0aW9ucy9CcmFuY2hQYWdlcy9CcmFuY2hEYXRhL1N0cnVjdHVyZU1lbWJlckxpc3QucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[/Users/dariuszkoszalka/Documents/Programowianie/Programy w budowie/MembersBlazorNet6/MembersBlazorNet6/Pages/User/UnionInstitutions/BranchPages/Components/BranchAddressComponent.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXMvVXNlci9Vbmlvbkluc3RpdHV0aW9ucy9CcmFuY2hQYWdlcy9Db21wb25lbnRzL0JyYW5jaEFkZHJlc3NDb21wb25lbnQucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[/Users/dariuszkoszalka/Documents/Programowianie/Programy w budowie/MembersBlazorNet6/MembersBlazorNet6/Pages/User/UnionInstitutions/BranchPages/Components/BranchContactComponent.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXMvVXNlci9Vbmlvbkluc3RpdHV0aW9ucy9CcmFuY2hQYWdlcy9Db21wb25lbnRzL0JyYW5jaENvbnRhY3RDb21wb25lbnQucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[/Users/dariuszkoszalka/Documents/Programowianie/Programy w budowie/MembersBlazorNet6/MembersBlazorNet6/Pages/User/UnionInstitutions/BranchPages/Fires/Components/FireAddressComponent.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXMvVXNlci9Vbmlvbkluc3RpdHV0aW9ucy9CcmFuY2hQYWdlcy9GaXJlcy9Db21wb25lbnRzL0ZpcmVBZGRyZXNzQ29tcG9uZW50LnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[/Users/dariuszkoszalka/Documents/Programowianie/Programy w budowie/MembersBlazorNet6/MembersBlazorNet6/Pages/User/UnionInstitutions/BranchPages/Fires/Components/FireContactComponent.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXMvVXNlci9Vbmlvbkluc3RpdHV0aW9ucy9CcmFuY2hQYWdlcy9GaXJlcy9Db21wb25lbnRzL0ZpcmVDb250YWN0Q29tcG9uZW50LnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[/Users/dariuszkoszalka/Documents/Programowianie/Programy w budowie/MembersBlazorNet6/MembersBlazorNet6/Pages/User/UnionInstitutions/BranchPages/Fires/FireContactUpsert.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXMvVXNlci9Vbmlvbkluc3RpdHV0aW9ucy9CcmFuY2hQYWdlcy9GaXJlcy9GaXJlQ29udGFjdFVwc2VydC5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
+[/Users/dariuszkoszalka/Documents/Programowianie/Programy w budowie/MembersBlazorNet6/MembersBlazorNet6/Pages/User/UnionInstitutions/BranchPages/Fires/FireList.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXMvVXNlci9Vbmlvbkluc3RpdHV0aW9ucy9CcmFuY2hQYWdlcy9GaXJlcy9GaXJlTGlzdC5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
+[/Users/dariuszkoszalka/Documents/Programowianie/Programy w budowie/MembersBlazorNet6/MembersBlazorNet6/Pages/User/UnionInstitutions/BranchPages/Members/Components/MemberContactComponent.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXMvVXNlci9Vbmlvbkluc3RpdHV0aW9ucy9CcmFuY2hQYWdlcy9NZW1iZXJzL0NvbXBvbmVudHMvTWVtYmVyQ29udGFjdENvbXBvbmVudC5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
+[/Users/dariuszkoszalka/Documents/Programowianie/Programy w budowie/MembersBlazorNet6/MembersBlazorNet6/Pages/User/UnionInstitutions/BranchPages/Members/Components/MemberDetailsComponent.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXMvVXNlci9Vbmlvbkluc3RpdHV0aW9ucy9CcmFuY2hQYWdlcy9NZW1iZXJzL0NvbXBvbmVudHMvTWVtYmVyRGV0YWlsc0NvbXBvbmVudC5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
+[/Users/dariuszkoszalka/Documents/Programowianie/Programy w budowie/MembersBlazorNet6/MembersBlazorNet6/Pages/User/UnionInstitutions/BranchPages/Members/Components/MemberUnionFunctionComponent.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXMvVXNlci9Vbmlvbkluc3RpdHV0aW9ucy9CcmFuY2hQYWdlcy9NZW1iZXJzL0NvbXBvbmVudHMvTWVtYmVyVW5pb25GdW5jdGlvbkNvbXBvbmVudC5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
+[/Users/dariuszkoszalka/Documents/Programowianie/Programy w budowie/MembersBlazorNet6/MembersBlazorNet6/Pages/User/UnionInstitutions/BranchPages/Members/MemberDetails.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXMvVXNlci9Vbmlvbkluc3RpdHV0aW9ucy9CcmFuY2hQYWdlcy9NZW1iZXJzL01lbWJlckRldGFpbHMucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[/Users/dariuszkoszalka/Documents/Programowianie/Programy w budowie/MembersBlazorNet6/MembersBlazorNet6/Pages/User/UnionInstitutions/BranchPages/Members/MemberPaymentList.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXMvVXNlci9Vbmlvbkluc3RpdHV0aW9ucy9CcmFuY2hQYWdlcy9NZW1iZXJzL01lbWJlclBheW1lbnRMaXN0LnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[/Users/dariuszkoszalka/Documents/Programowianie/Programy w budowie/MembersBlazorNet6/MembersBlazorNet6/Pages/User/UnionInstitutions/BranchPages/Members/MembersList.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXMvVXNlci9Vbmlvbkluc3RpdHV0aW9ucy9CcmFuY2hQYWdlcy9NZW1iZXJzL01lbWJlcnNMaXN0LnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[/Users/dariuszkoszalka/Documents/Programowianie/Programy w budowie/MembersBlazorNet6/MembersBlazorNet6/Pages/User/UnionInstitutions/BranchPages/Members/MembersList2.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXMvVXNlci9Vbmlvbkluc3RpdHV0aW9ucy9CcmFuY2hQYWdlcy9NZW1iZXJzL01lbWJlcnNMaXN0Mi5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
+[/Users/dariuszkoszalka/Documents/Programowianie/Programy w budowie/MembersBlazorNet6/MembersBlazorNet6/Pages/User/UnionInstitutions/BranchPages/Members/UpsertMember.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXMvVXNlci9Vbmlvbkluc3RpdHV0aW9ucy9CcmFuY2hQYWdlcy9NZW1iZXJzL1Vwc2VydE1lbWJlci5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
+[/Users/dariuszkoszalka/Documents/Programowianie/Programy w budowie/MembersBlazorNet6/MembersBlazorNet6/Pages/User/UnionInstitutions/BranchPages/_Imports.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXMvVXNlci9Vbmlvbkluc3RpdHV0aW9ucy9CcmFuY2hQYWdlcy9fSW1wb3J0cy5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
+[/Users/dariuszkoszalka/Documents/Programowianie/Programy w budowie/MembersBlazorNet6/MembersBlazorNet6/Pages/User/UnionInstitutions/Details.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXMvVXNlci9Vbmlvbkluc3RpdHV0aW9ucy9EZXRhaWxzLnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[/Users/dariuszkoszalka/Documents/Programowianie/Programy w budowie/MembersBlazorNet6/MembersBlazorNet6/Pages/User/UnionInstitutions/DistrictPages/DistrictIndex.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXMvVXNlci9Vbmlvbkluc3RpdHV0aW9ucy9EaXN0cmljdFBhZ2VzL0Rpc3RyaWN0SW5kZXgucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[/Users/dariuszkoszalka/Documents/Programowianie/Programy w budowie/MembersBlazorNet6/MembersBlazorNet6/Pages/User/UnionInstitutions/DistrictPages/_Imports.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXMvVXNlci9Vbmlvbkluc3RpdHV0aW9ucy9EaXN0cmljdFBhZ2VzL19JbXBvcnRzLnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[/Users/dariuszkoszalka/Documents/Programowianie/Programy w budowie/MembersBlazorNet6/MembersBlazorNet6/Pages/User/UserIndex.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXMvVXNlci9Vc2VySW5kZXgucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[/Users/dariuszkoszalka/Documents/Programowianie/Programy w budowie/MembersBlazorNet6/MembersBlazorNet6/Pages/User/_Imports.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXMvVXNlci9fSW1wb3J0cy5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
+[/Users/dariuszkoszalka/Documents/Programowianie/Programy w budowie/MembersBlazorNet6/MembersBlazorNet6/Pages/_Imports.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXMvX0ltcG9ydHMucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[/Users/dariuszkoszalka/Documents/Programowianie/Programy w budowie/MembersBlazorNet6/MembersBlazorNet6/Shared/Breadcrumb.razor]
+build_metadata.AdditionalFiles.TargetPath = U2hhcmVkL0JyZWFkY3J1bWIucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[/Users/dariuszkoszalka/Documents/Programowianie/Programy w budowie/MembersBlazorNet6/MembersBlazorNet6/Shared/LoginDisplay.razor]
+build_metadata.AdditionalFiles.TargetPath = U2hhcmVkL0xvZ2luRGlzcGxheS5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
+[/Users/dariuszkoszalka/Documents/Programowianie/Programy w budowie/MembersBlazorNet6/MembersBlazorNet6/_Imports.razor]
+build_metadata.AdditionalFiles.TargetPath = X0ltcG9ydHMucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[/Users/dariuszkoszalka/Documents/Programowianie/Programy w budowie/MembersBlazorNet6/MembersBlazorNet6/Pages/Admin/TypeOfUnionInstitutions/TypeOfUnionInstitutionList.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXMvQWRtaW4vVHlwZU9mVW5pb25JbnN0aXR1dGlvbnMvVHlwZU9mVW5pb25JbnN0aXR1dGlvbkxpc3QucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = b-ey68agh8bb
+
+[/Users/dariuszkoszalka/Documents/Programowianie/Programy w budowie/MembersBlazorNet6/MembersBlazorNet6/Pages/NavMenus/BranchUserMenu.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXMvTmF2TWVudXMvQnJhbmNoVXNlck1lbnUucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = b-5f5kzokh1v
+
+[/Users/dariuszkoszalka/Documents/Programowianie/Programy w budowie/MembersBlazorNet6/MembersBlazorNet6/Pages/NavMenus/DistrictUserMenu.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXMvTmF2TWVudXMvRGlzdHJpY3RVc2VyTWVudS5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = b-cqp0pvszmv
+
+[/Users/dariuszkoszalka/Documents/Programowianie/Programy w budowie/MembersBlazorNet6/MembersBlazorNet6/Pages/NavMenus/SuperAdminMenu.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXMvTmF2TWVudXMvU3VwZXJBZG1pbk1lbnUucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = b-otl1ad2zv6
+
+[/Users/dariuszkoszalka/Documents/Programowianie/Programy w budowie/MembersBlazorNet6/MembersBlazorNet6/Pages/NavMenus/UserAdminMenu.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXMvTmF2TWVudXMvVXNlckFkbWluTWVudS5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = b-d4d6j4c31b
+
+[/Users/dariuszkoszalka/Documents/Programowianie/Programy w budowie/MembersBlazorNet6/MembersBlazorNet6/Shared/BlankLayout.razor]
+build_metadata.AdditionalFiles.TargetPath = U2hhcmVkL0JsYW5rTGF5b3V0LnJhem9y
+build_metadata.AdditionalFiles.CssScope = b-cd20t2oxxy
+
+[/Users/dariuszkoszalka/Documents/Programowianie/Programy w budowie/MembersBlazorNet6/MembersBlazorNet6/Shared/BranchUserLayout.razor]
+build_metadata.AdditionalFiles.TargetPath = U2hhcmVkL0JyYW5jaFVzZXJMYXlvdXQucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = b-88smz7dpz6
+
+[/Users/dariuszkoszalka/Documents/Programowianie/Programy w budowie/MembersBlazorNet6/MembersBlazorNet6/Shared/DistrictUserLayout.razor]
+build_metadata.AdditionalFiles.TargetPath = U2hhcmVkL0Rpc3RyaWN0VXNlckxheW91dC5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = b-0iujjvbgii
+
+[/Users/dariuszkoszalka/Documents/Programowianie/Programy w budowie/MembersBlazorNet6/MembersBlazorNet6/Shared/SuperAdminLayout.razor]
+build_metadata.AdditionalFiles.TargetPath = U2hhcmVkL1N1cGVyQWRtaW5MYXlvdXQucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = b-49sbeutni7
+
+[/Users/dariuszkoszalka/Documents/Programowianie/Programy w budowie/MembersBlazorNet6/MembersBlazorNet6/Shared/UserAdminLayout.razor]
+build_metadata.AdditionalFiles.TargetPath = U2hhcmVkL1VzZXJBZG1pbkxheW91dC5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = b-loy0aniyrl
+
+[/Users/dariuszkoszalka/Documents/Programowianie/Programy w budowie/MembersBlazorNet6/MembersBlazorNet6/Areas/Identity/Pages/Account/AccessDenied.cshtml]
+build_metadata.AdditionalFiles.TargetPath = QXJlYXMvSWRlbnRpdHkvUGFnZXMvQWNjb3VudC9BY2Nlc3NEZW5pZWQuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[/Users/dariuszkoszalka/Documents/Programowianie/Programy w budowie/MembersBlazorNet6/MembersBlazorNet6/Areas/Identity/Pages/Account/ConfirmEmail.cshtml]
+build_metadata.AdditionalFiles.TargetPath = QXJlYXMvSWRlbnRpdHkvUGFnZXMvQWNjb3VudC9Db25maXJtRW1haWwuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[/Users/dariuszkoszalka/Documents/Programowianie/Programy w budowie/MembersBlazorNet6/MembersBlazorNet6/Areas/Identity/Pages/Account/ConfirmEmailChange.cshtml]
+build_metadata.AdditionalFiles.TargetPath = QXJlYXMvSWRlbnRpdHkvUGFnZXMvQWNjb3VudC9Db25maXJtRW1haWxDaGFuZ2UuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[/Users/dariuszkoszalka/Documents/Programowianie/Programy w budowie/MembersBlazorNet6/MembersBlazorNet6/Areas/Identity/Pages/Account/ForgotPassword.cshtml]
+build_metadata.AdditionalFiles.TargetPath = QXJlYXMvSWRlbnRpdHkvUGFnZXMvQWNjb3VudC9Gb3Jnb3RQYXNzd29yZC5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[/Users/dariuszkoszalka/Documents/Programowianie/Programy w budowie/MembersBlazorNet6/MembersBlazorNet6/Areas/Identity/Pages/Account/ForgotPasswordConfirmation.cshtml]
+build_metadata.AdditionalFiles.TargetPath = QXJlYXMvSWRlbnRpdHkvUGFnZXMvQWNjb3VudC9Gb3Jnb3RQYXNzd29yZENvbmZpcm1hdGlvbi5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[/Users/dariuszkoszalka/Documents/Programowianie/Programy w budowie/MembersBlazorNet6/MembersBlazorNet6/Areas/Identity/Pages/Account/Lockout.cshtml]
+build_metadata.AdditionalFiles.TargetPath = QXJlYXMvSWRlbnRpdHkvUGFnZXMvQWNjb3VudC9Mb2Nrb3V0LmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[/Users/dariuszkoszalka/Documents/Programowianie/Programy w budowie/MembersBlazorNet6/MembersBlazorNet6/Areas/Identity/Pages/Account/Login.cshtml]
+build_metadata.AdditionalFiles.TargetPath = QXJlYXMvSWRlbnRpdHkvUGFnZXMvQWNjb3VudC9Mb2dpbi5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[/Users/dariuszkoszalka/Documents/Programowianie/Programy w budowie/MembersBlazorNet6/MembersBlazorNet6/Areas/Identity/Pages/Account/LoginWith2fa.cshtml]
+build_metadata.AdditionalFiles.TargetPath = QXJlYXMvSWRlbnRpdHkvUGFnZXMvQWNjb3VudC9Mb2dpbldpdGgyZmEuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[/Users/dariuszkoszalka/Documents/Programowianie/Programy w budowie/MembersBlazorNet6/MembersBlazorNet6/Areas/Identity/Pages/Account/LoginWithRecoveryCode.cshtml]
+build_metadata.AdditionalFiles.TargetPath = QXJlYXMvSWRlbnRpdHkvUGFnZXMvQWNjb3VudC9Mb2dpbldpdGhSZWNvdmVyeUNvZGUuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[/Users/dariuszkoszalka/Documents/Programowianie/Programy w budowie/MembersBlazorNet6/MembersBlazorNet6/Areas/Identity/Pages/Account/LogOut.cshtml]
+build_metadata.AdditionalFiles.TargetPath = QXJlYXMvSWRlbnRpdHkvUGFnZXMvQWNjb3VudC9Mb2dPdXQuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[/Users/dariuszkoszalka/Documents/Programowianie/Programy w budowie/MembersBlazorNet6/MembersBlazorNet6/Areas/Identity/Pages/Account/Manage/ChangePassword.cshtml]
+build_metadata.AdditionalFiles.TargetPath = QXJlYXMvSWRlbnRpdHkvUGFnZXMvQWNjb3VudC9NYW5hZ2UvQ2hhbmdlUGFzc3dvcmQuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[/Users/dariuszkoszalka/Documents/Programowianie/Programy w budowie/MembersBlazorNet6/MembersBlazorNet6/Areas/Identity/Pages/Account/Manage/DeletePersonalData.cshtml]
+build_metadata.AdditionalFiles.TargetPath = QXJlYXMvSWRlbnRpdHkvUGFnZXMvQWNjb3VudC9NYW5hZ2UvRGVsZXRlUGVyc29uYWxEYXRhLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[/Users/dariuszkoszalka/Documents/Programowianie/Programy w budowie/MembersBlazorNet6/MembersBlazorNet6/Areas/Identity/Pages/Account/Manage/Disable2fa.cshtml]
+build_metadata.AdditionalFiles.TargetPath = QXJlYXMvSWRlbnRpdHkvUGFnZXMvQWNjb3VudC9NYW5hZ2UvRGlzYWJsZTJmYS5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[/Users/dariuszkoszalka/Documents/Programowianie/Programy w budowie/MembersBlazorNet6/MembersBlazorNet6/Areas/Identity/Pages/Account/Manage/DownloadPersonalData.cshtml]
+build_metadata.AdditionalFiles.TargetPath = QXJlYXMvSWRlbnRpdHkvUGFnZXMvQWNjb3VudC9NYW5hZ2UvRG93bmxvYWRQZXJzb25hbERhdGEuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[/Users/dariuszkoszalka/Documents/Programowianie/Programy w budowie/MembersBlazorNet6/MembersBlazorNet6/Areas/Identity/Pages/Account/Manage/Email.cshtml]
+build_metadata.AdditionalFiles.TargetPath = QXJlYXMvSWRlbnRpdHkvUGFnZXMvQWNjb3VudC9NYW5hZ2UvRW1haWwuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[/Users/dariuszkoszalka/Documents/Programowianie/Programy w budowie/MembersBlazorNet6/MembersBlazorNet6/Areas/Identity/Pages/Account/Manage/EnableAuthenticator.cshtml]
+build_metadata.AdditionalFiles.TargetPath = QXJlYXMvSWRlbnRpdHkvUGFnZXMvQWNjb3VudC9NYW5hZ2UvRW5hYmxlQXV0aGVudGljYXRvci5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[/Users/dariuszkoszalka/Documents/Programowianie/Programy w budowie/MembersBlazorNet6/MembersBlazorNet6/Areas/Identity/Pages/Account/Manage/GenerateRecoveryCodes.cshtml]
+build_metadata.AdditionalFiles.TargetPath = QXJlYXMvSWRlbnRpdHkvUGFnZXMvQWNjb3VudC9NYW5hZ2UvR2VuZXJhdGVSZWNvdmVyeUNvZGVzLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[/Users/dariuszkoszalka/Documents/Programowianie/Programy w budowie/MembersBlazorNet6/MembersBlazorNet6/Areas/Identity/Pages/Account/Manage/Index.cshtml]
+build_metadata.AdditionalFiles.TargetPath = QXJlYXMvSWRlbnRpdHkvUGFnZXMvQWNjb3VudC9NYW5hZ2UvSW5kZXguY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[/Users/dariuszkoszalka/Documents/Programowianie/Programy w budowie/MembersBlazorNet6/MembersBlazorNet6/Areas/Identity/Pages/Account/Manage/PersonalData.cshtml]
+build_metadata.AdditionalFiles.TargetPath = QXJlYXMvSWRlbnRpdHkvUGFnZXMvQWNjb3VudC9NYW5hZ2UvUGVyc29uYWxEYXRhLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[/Users/dariuszkoszalka/Documents/Programowianie/Programy w budowie/MembersBlazorNet6/MembersBlazorNet6/Areas/Identity/Pages/Account/Manage/ResetAuthenticator.cshtml]
+build_metadata.AdditionalFiles.TargetPath = QXJlYXMvSWRlbnRpdHkvUGFnZXMvQWNjb3VudC9NYW5hZ2UvUmVzZXRBdXRoZW50aWNhdG9yLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[/Users/dariuszkoszalka/Documents/Programowianie/Programy w budowie/MembersBlazorNet6/MembersBlazorNet6/Areas/Identity/Pages/Account/Manage/SetPassword.cshtml]
+build_metadata.AdditionalFiles.TargetPath = QXJlYXMvSWRlbnRpdHkvUGFnZXMvQWNjb3VudC9NYW5hZ2UvU2V0UGFzc3dvcmQuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[/Users/dariuszkoszalka/Documents/Programowianie/Programy w budowie/MembersBlazorNet6/MembersBlazorNet6/Areas/Identity/Pages/Account/Manage/ShowRecoveryCodes.cshtml]
+build_metadata.AdditionalFiles.TargetPath = QXJlYXMvSWRlbnRpdHkvUGFnZXMvQWNjb3VudC9NYW5hZ2UvU2hvd1JlY292ZXJ5Q29kZXMuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[/Users/dariuszkoszalka/Documents/Programowianie/Programy w budowie/MembersBlazorNet6/MembersBlazorNet6/Areas/Identity/Pages/Account/Manage/TwoFactorAuthentication.cshtml]
+build_metadata.AdditionalFiles.TargetPath = QXJlYXMvSWRlbnRpdHkvUGFnZXMvQWNjb3VudC9NYW5hZ2UvVHdvRmFjdG9yQXV0aGVudGljYXRpb24uY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[/Users/dariuszkoszalka/Documents/Programowianie/Programy w budowie/MembersBlazorNet6/MembersBlazorNet6/Areas/Identity/Pages/Account/Manage/_Layout.cshtml]
+build_metadata.AdditionalFiles.TargetPath = QXJlYXMvSWRlbnRpdHkvUGFnZXMvQWNjb3VudC9NYW5hZ2UvX0xheW91dC5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[/Users/dariuszkoszalka/Documents/Programowianie/Programy w budowie/MembersBlazorNet6/MembersBlazorNet6/Areas/Identity/Pages/Account/Manage/_ManageNav.cshtml]
+build_metadata.AdditionalFiles.TargetPath = QXJlYXMvSWRlbnRpdHkvUGFnZXMvQWNjb3VudC9NYW5hZ2UvX01hbmFnZU5hdi5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[/Users/dariuszkoszalka/Documents/Programowianie/Programy w budowie/MembersBlazorNet6/MembersBlazorNet6/Areas/Identity/Pages/Account/Manage/_StatusMessage.cshtml]
+build_metadata.AdditionalFiles.TargetPath = QXJlYXMvSWRlbnRpdHkvUGFnZXMvQWNjb3VudC9NYW5hZ2UvX1N0YXR1c01lc3NhZ2UuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[/Users/dariuszkoszalka/Documents/Programowianie/Programy w budowie/MembersBlazorNet6/MembersBlazorNet6/Areas/Identity/Pages/Account/Manage/_ViewImports.cshtml]
+build_metadata.AdditionalFiles.TargetPath = QXJlYXMvSWRlbnRpdHkvUGFnZXMvQWNjb3VudC9NYW5hZ2UvX1ZpZXdJbXBvcnRzLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[/Users/dariuszkoszalka/Documents/Programowianie/Programy w budowie/MembersBlazorNet6/MembersBlazorNet6/Areas/Identity/Pages/Account/Register.cshtml]
+build_metadata.AdditionalFiles.TargetPath = QXJlYXMvSWRlbnRpdHkvUGFnZXMvQWNjb3VudC9SZWdpc3Rlci5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[/Users/dariuszkoszalka/Documents/Programowianie/Programy w budowie/MembersBlazorNet6/MembersBlazorNet6/Areas/Identity/Pages/Account/RegisterConfirmation.cshtml]
+build_metadata.AdditionalFiles.TargetPath = QXJlYXMvSWRlbnRpdHkvUGFnZXMvQWNjb3VudC9SZWdpc3RlckNvbmZpcm1hdGlvbi5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[/Users/dariuszkoszalka/Documents/Programowianie/Programy w budowie/MembersBlazorNet6/MembersBlazorNet6/Areas/Identity/Pages/Account/ResendEmailConfirmation.cshtml]
+build_metadata.AdditionalFiles.TargetPath = QXJlYXMvSWRlbnRpdHkvUGFnZXMvQWNjb3VudC9SZXNlbmRFbWFpbENvbmZpcm1hdGlvbi5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[/Users/dariuszkoszalka/Documents/Programowianie/Programy w budowie/MembersBlazorNet6/MembersBlazorNet6/Areas/Identity/Pages/Account/ResetPassword.cshtml]
+build_metadata.AdditionalFiles.TargetPath = QXJlYXMvSWRlbnRpdHkvUGFnZXMvQWNjb3VudC9SZXNldFBhc3N3b3JkLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[/Users/dariuszkoszalka/Documents/Programowianie/Programy w budowie/MembersBlazorNet6/MembersBlazorNet6/Areas/Identity/Pages/Account/ResetPasswordConfirmation.cshtml]
+build_metadata.AdditionalFiles.TargetPath = QXJlYXMvSWRlbnRpdHkvUGFnZXMvQWNjb3VudC9SZXNldFBhc3N3b3JkQ29uZmlybWF0aW9uLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[/Users/dariuszkoszalka/Documents/Programowianie/Programy w budowie/MembersBlazorNet6/MembersBlazorNet6/Areas/Identity/Pages/Account/_StatusMessage.cshtml]
+build_metadata.AdditionalFiles.TargetPath = QXJlYXMvSWRlbnRpdHkvUGFnZXMvQWNjb3VudC9fU3RhdHVzTWVzc2FnZS5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[/Users/dariuszkoszalka/Documents/Programowianie/Programy w budowie/MembersBlazorNet6/MembersBlazorNet6/Areas/Identity/Pages/Account/_ViewImports.cshtml]
+build_metadata.AdditionalFiles.TargetPath = QXJlYXMvSWRlbnRpdHkvUGFnZXMvQWNjb3VudC9fVmlld0ltcG9ydHMuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[/Users/dariuszkoszalka/Documents/Programowianie/Programy w budowie/MembersBlazorNet6/MembersBlazorNet6/Areas/Identity/Pages/Error.cshtml]
+build_metadata.AdditionalFiles.TargetPath = QXJlYXMvSWRlbnRpdHkvUGFnZXMvRXJyb3IuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[/Users/dariuszkoszalka/Documents/Programowianie/Programy w budowie/MembersBlazorNet6/MembersBlazorNet6/Areas/Identity/Pages/Shared/_Layout.cshtml]
+build_metadata.AdditionalFiles.TargetPath = QXJlYXMvSWRlbnRpdHkvUGFnZXMvU2hhcmVkL19MYXlvdXQuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[/Users/dariuszkoszalka/Documents/Programowianie/Programy w budowie/MembersBlazorNet6/MembersBlazorNet6/Areas/Identity/Pages/Shared/_LoginPartial.cshtml]
+build_metadata.AdditionalFiles.TargetPath = QXJlYXMvSWRlbnRpdHkvUGFnZXMvU2hhcmVkL19Mb2dpblBhcnRpYWwuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[/Users/dariuszkoszalka/Documents/Programowianie/Programy w budowie/MembersBlazorNet6/MembersBlazorNet6/Areas/Identity/Pages/Shared/_ValidationScriptsPartial.cshtml]
+build_metadata.AdditionalFiles.TargetPath = QXJlYXMvSWRlbnRpdHkvUGFnZXMvU2hhcmVkL19WYWxpZGF0aW9uU2NyaXB0c1BhcnRpYWwuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[/Users/dariuszkoszalka/Documents/Programowianie/Programy w budowie/MembersBlazorNet6/MembersBlazorNet6/Areas/Identity/Pages/_LayoutIdentity.cshtml]
+build_metadata.AdditionalFiles.TargetPath = QXJlYXMvSWRlbnRpdHkvUGFnZXMvX0xheW91dElkZW50aXR5LmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[/Users/dariuszkoszalka/Documents/Programowianie/Programy w budowie/MembersBlazorNet6/MembersBlazorNet6/Areas/Identity/Pages/_ValidationScriptsPartial.cshtml]
+build_metadata.AdditionalFiles.TargetPath = QXJlYXMvSWRlbnRpdHkvUGFnZXMvX1ZhbGlkYXRpb25TY3JpcHRzUGFydGlhbC5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[/Users/dariuszkoszalka/Documents/Programowianie/Programy w budowie/MembersBlazorNet6/MembersBlazorNet6/Areas/Identity/Pages/_ViewImports.cshtml]
+build_metadata.AdditionalFiles.TargetPath = QXJlYXMvSWRlbnRpdHkvUGFnZXMvX1ZpZXdJbXBvcnRzLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[/Users/dariuszkoszalka/Documents/Programowianie/Programy w budowie/MembersBlazorNet6/MembersBlazorNet6/Areas/Identity/Pages/_ViewStart.cshtml]
+build_metadata.AdditionalFiles.TargetPath = QXJlYXMvSWRlbnRpdHkvUGFnZXMvX1ZpZXdTdGFydC5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[/Users/dariuszkoszalka/Documents/Programowianie/Programy w budowie/MembersBlazorNet6/MembersBlazorNet6/Pages/Error.cshtml]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXMvRXJyb3IuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[/Users/dariuszkoszalka/Documents/Programowianie/Programy w budowie/MembersBlazorNet6/MembersBlazorNet6/Pages/_Host.cshtml]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXMvX0hvc3QuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[/Users/dariuszkoszalka/Documents/Programowianie/Programy w budowie/MembersBlazorNet6/MembersBlazorNet6/Pages/_Layout.cshtml]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXMvX0xheW91dC5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 

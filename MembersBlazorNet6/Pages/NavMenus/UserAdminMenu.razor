@@ -1,0 +1,82 @@
+﻿@inject IDbContextFactory<ApplicationDbContext> _contextFactory
+@inject SignInManager<ApplicationUser> _signInManager
+@inject NavigationManager _navigationManager
+
+<div class="top-row ps-3 navbar navbar-dark">
+    <div class="container-fluid">
+        <a class="navbar-brand" href="">Members</a>
+        <button title="Navigation menu" class="navbar-toggler" @onclick="ToggleNavMenu">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+    </div>
+</div>
+
+<div class="@NavMenuCssClass" @onclick="ToggleNavMenu">
+    <nav class="flex-column">
+        <div class="nav-item px-3">
+            <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
+                <span class="oi oi-home" aria-hidden="true"></span> Strona główna
+            </NavLink>
+        </div>
+        @if(BranchMenuVisible)
+            {
+                <BranchUserMenu BranchId="@UnionInstitutionId"/>
+            }
+        
+        
+    </nav>
+</div>
+
+@code {
+
+    [Parameter]
+    public int? UnionInstitutionId { get; set; }
+
+    private bool collapseNavMenu = true;
+
+    private string? NavMenuCssClass => collapseNavMenu ? "collapse" : null;
+
+
+    public bool BranchMenuVisible = false;
+
+    public ApplicationUser ApplicationUser { get; set; }
+
+    public UserAccess UserAccess { get; set; }
+
+
+    public UnionInstitution UnionInstitution { get; set; }
+
+    private void ToggleNavMenu()
+    {
+        collapseNavMenu = !collapseNavMenu;
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+
+        using(var _context = _contextFactory.CreateDbContext())
+        {
+            if(UnionInstitutionId != null)
+            {
+                UnionInstitution = await _context.UnionInstitution
+                    .Include(u=>u.TypeOfUnionInstitution)
+                .FirstOrDefaultAsync(u => u.Id == UnionInstitutionId);
+
+                if(UnionInstitution == null)
+                {
+                    _navigationManager.NavigateTo("/NotFoundPage");
+                }
+
+                if(UnionInstitution.TypeOfUnionInstitution.Name == TypeOfUnionInstitutionSD.Branch)
+                {
+                    BranchMenuVisible = true;
+                }
+
+            }
+        }
+
+
+
+
+    }
+}

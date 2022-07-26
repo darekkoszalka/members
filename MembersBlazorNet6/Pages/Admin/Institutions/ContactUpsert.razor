@@ -1,0 +1,153 @@
+﻿@page "/admin/unionInstitutions/contactCreate/{unionInstitutionId:int}"
+@page "/admin/unionInstitutions/contactEdit/{unionInstitutionContactId:int}"
+@inject IDbContextFactory<ApplicationDbContext> _contextFactory
+@inject NotificationService _notificationService
+@inject NavigationManager _navigationManager
+
+
+<div class="container">
+    @if (ProgressBarVisible)
+    {
+        <RadzenProgressBar Value="100" ShowValue="false" Mode="ProgressBarMode.Indeterminate" />
+    }
+    else
+    {
+
+        <div class="row mt-5">
+            <div class="col-sm-8 offset-sm-2">
+                <div class="card p-5">
+
+                    <h4 class="text-center text-secondary mb-3">@UnionInstitution.FullName</h4>
+                    <EditForm Model="@UnionInstitutionContact" OnValidSubmit="@Upsert">
+
+                        <DataAnnotationsValidator />
+
+
+                        <div class="form-group">
+                            <small class="text-secondary d-block">Telefon</small>
+                            <RadzenMask @bind-Value="UnionInstitutionContact.Phone" Mask="*********" CharacterPattern="[0-9]" Placeholder="np. 322332323" Class="form-control" />
+                            <ValidationMessage For="() => UnionInstitutionContact.Phone" />
+                        </div>
+                        <div class="form-group">
+                            <small class="text-secondary d-block">Email</small>
+                            <RadzenTextBox @bind-Value="UnionInstitutionContact.Email" Placeholder="np.aaa@test.pl" Class="form-control" />
+                            <ValidationMessage For="() => UnionInstitutionContact.Email" />
+                        </div>
+                        <div class="form-group">
+                            <small class="text-secondary d-block">Strona internetowa</small>
+                            <RadzenTextBox @bind-Value="UnionInstitutionContact.WWW" Placeholder="np.www.znp.edu.pl" Class="form-control" />
+                        </div>
+                        <div class="form-group">
+                            <small class="text-secondary d-block">Link do strony internetowej</small>
+                            <RadzenTextBox @bind-Value="UnionInstitutionContact.LinkWww" Placeholder="np.https://znp.edu.pl/" Class="form-control" />
+                        </div>
+                        <div class="mt-3">
+                            <RadzenButton ButtonType="ButtonType.Submit" ButtonStyle="ButtonStyle.Success" Text="Zapisz" />
+                            <RadzenButton ButtonStyle="ButtonStyle.Secondary" Text="Anuluj" Click="@(args => BackToDetails(UnionInstitution.Id))" />
+
+                        </div>
+
+                    </EditForm>
+                </div>
+
+            </div>
+
+        </div>
+    }
+</div>
+
+
+
+
+@code {
+
+    [Parameter]
+    public int? unionInstitutionId { get; set; }
+
+    [Parameter]
+    public int? unionInstitutionContactId { get; set; }
+
+    private string Title = "";
+
+    public bool ProgressBarVisible { get; set; }
+
+    public UnionInstitution UnionInstitution { get; set; }
+
+    public UnionInstitutionContact UnionInstitutionContact { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        ProgressBarVisible = true;
+        if (unionInstitutionId != null)
+        {
+            Title = "Dodaj dane kontaktowe";
+
+            UnionInstitutionContact = new UnionInstitutionContact();
+
+            using(var _context = _contextFactory.CreateDbContext())
+            {
+                UnionInstitution = await _context.UnionInstitution.FirstOrDefaultAsync(u => u.Id == unionInstitutionId);
+            }
+
+        }
+        else
+        {
+            Title = "Edytuj dane kontaktowe";
+
+            using(var _context = _contextFactory.CreateDbContext())
+            {
+                UnionInstitutionContact = await _context.UnionInstitutionContact
+                .FirstOrDefaultAsync(a => a.Id == unionInstitutionContactId);
+
+                UnionInstitution = await _context.UnionInstitution
+                    .FirstOrDefaultAsync(u => u.Id == UnionInstitutionContact.UnionInstitutionId);
+            }
+
+        }
+
+        ProgressBarVisible = false;
+    }
+
+    async Task Upsert()
+    {
+        if (Title == "Dodaj dane kontaktowe")
+        {
+            UnionInstitutionContact.UnionInstitutionId = UnionInstitution.Id;
+
+            using(var _context = _contextFactory.CreateDbContext())
+            {
+                _context.UnionInstitutionContact.Add(UnionInstitutionContact);
+
+                await _context.SaveChangesAsync();
+            }
+
+
+            _notificationService.Notify(NotificationSeverity.Success, "Sukces", "Pomyślnie dodano dane kontaktowe.", 3000);
+            _navigationManager.NavigateTo($"/admin/unionInstitutions/Details/{UnionInstitutionContact.UnionInstitutionId}");
+        }
+        else
+        {
+            using(var _context = _contextFactory.CreateDbContext())
+            {
+                _context.UnionInstitutionContact.Update(UnionInstitutionContact);
+
+                await _context.SaveChangesAsync();
+            }
+
+            _notificationService.Notify(NotificationSeverity.Success, "Sukces", "Dane zostały zaktualizowane", 3000);
+            _navigationManager.NavigateTo($"/admin/unionInstitutions/Details/{UnionInstitutionContact.UnionInstitutionId}");
+        }
+
+
+    }
+
+    async Task BackToDetails(int Id)
+    {
+        _navigationManager.NavigateTo($"/admin/unionInstitutions/Details/{Id}");
+    }
+
+
+}
+
+
+

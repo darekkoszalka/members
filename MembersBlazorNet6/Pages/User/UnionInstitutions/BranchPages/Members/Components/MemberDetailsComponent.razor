@@ -1,0 +1,58 @@
+﻿@inject IDbContextFactory<ApplicationDbContext> _contextFactory
+
+@{
+    var age = Member.getAge(Member.Pesel);
+
+    var gender = Member.getGender(Member.Pesel);
+    <RadzenCard class="text-wrap">
+        <div class="d-flex justify-content-between">
+            <h4>@Member.FirstName @Member.SecondName @Member.LastName</h4>
+            <RadzenButton Text="Edytuj" Click="@(args => EditDetails.InvokeAsync(Member))" ButtonStyle="ButtonStyle.Secondary" />
+        </div>
+        <small class="text-secondary">Ognisko</small>
+        <p>@Member.UnionInstitution.FullName</p>
+        <small class="text-secondary">Stanowisko pracy</small>
+        <p>@Member.WorkPlace.Name</p>
+        <small class="text-secondary">Wykształcenie</small>
+        <p>@Member.Education.Name</p>
+        <small class="text-secondary">Pesel</small>
+        <p>@Member.Pesel</p>
+        <small class="text-secondary">Nr legitymacji</small>
+        @if (Member.UnionCard != null)
+        {
+            <p>@Member.UnionCard</p>
+        }
+        else
+        {
+            <p class="text-secondary">Brak</p>
+        }
+        <small class="text-secondary">Data przyjęcia</small>
+        <p>@Member.StartDate.Value.ToString("dd/MM/yyyy")</p>
+        
+        <hr />
+        <small class="text-secondary">aktualizacja: @Member.UpdateDate.Value.ToString("dd/MM/yyyy")</small>
+        @using (var _context = _contextFactory.CreateDbContext())
+        {
+            var user = _context.ApplicationUser
+                        .FirstOrDefault(u => u.Id == Member.RegisterDateUserId);
+            if (user != null)
+            {
+                <small class="text-secondary">@user.FirstName @user.LastName</small>
+            }
+
+        }
+
+    </RadzenCard>
+}
+
+
+@code {
+
+    [Parameter]
+    public Member Member { get; set; }
+
+    [Parameter]
+    public EventCallback<Member> EditDetails { get; set; }
+
+}
+

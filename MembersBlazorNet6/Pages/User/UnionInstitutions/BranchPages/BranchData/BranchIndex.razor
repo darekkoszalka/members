@@ -1,0 +1,49 @@
+﻿@page "/user/unionInstitutions/branchPages/branchIndex/{branchId:int?}"
+@inject IDbContextFactory<ApplicationDbContext> _contextFactory
+@inject NavigationManager _navigationManager
+@inject IAccessService _accessService
+@inject IUnionInstitutionRepository _unionInstitutionRepository
+
+
+<div class="container">
+    @if (ProgressBarVisible)
+    {
+        <RadzenProgressBar Value="100" ShowValue="false" Mode="ProgressBarMode.Indeterminate" />
+    }
+    else
+    {
+        <Breadcrumb Title="@Title" />
+        <h1>@UnionInstitution.FullName</h1>
+    }
+</div>
+
+@code {
+    [Parameter]
+    public int? branchId { get; set; }
+    public string? Title { get; set; }
+    public bool ProgressBarVisible { get; set; }
+    public UnionInstitution UnionInstitution { get; set; } = new UnionInstitution();
+
+    protected override async Task OnInitializedAsync()
+    {
+        ProgressBarVisible = true;
+
+        if (branchId == null)
+        {
+            _navigationManager.NavigateTo("/NotFoundPage");
+        }
+        var result = await _accessService.AccessByInsitutionId(branchId);
+        if (!result)
+        {
+            _navigationManager.NavigateTo("/NotFoundPage");
+        }
+        UnionInstitution = await _unionInstitutionRepository.GetUnionInstitutionById(branchId);
+        if (UnionInstitution == null)
+        {
+            _navigationManager.NavigateTo("/NotFoundPage");
+        }
+
+        Title = $"{UnionInstitution.FullName}";
+        ProgressBarVisible = false;
+    }
+}

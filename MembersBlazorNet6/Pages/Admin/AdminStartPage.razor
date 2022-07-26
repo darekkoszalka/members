@@ -1,0 +1,18 @@
+﻿@page "/admin/adminStartPage"
+
+<div class="container">
+    <Breadcrumb Title="@Title" />
+</div>
+
+
+
+@code {
+
+    private string Title = "";
+
+    protected override async Task OnInitializedAsync()
+    {
+        Title = $"Jesteś zalogowany jako {RoleSD.SuperAdmin}";
+    }
+}
+

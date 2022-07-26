@@ -1,0 +1,29 @@
+﻿@*@inject IDbContextFactory<ApplicationDbContext> _contextFactory*@
+@*@inject SignInManager<ApplicationUser> _signInManager*@
+@inject IAccessService _accessService
+<AuthorizeView>
+    <Authorized>
+        <a href="Identity/Account/Manage">Witaj, @ApplicationUser.FirstName @ApplicationUser.LastName</a>
+        <form method="post" action="Identity/Account/LogOut">
+            <button type="submit" class="nav-link btn btn-link">Wyloguj się</button>
+        </form>
+    </Authorized>
+    <NotAuthorized>
+        <a href="Identity/Account/Login">Zaloguj się</a>
+    </NotAuthorized>
+</AuthorizeView>
+
+@code {
+
+    public ApplicationUser ApplicationUser { get; set; } = new ApplicationUser();
+
+    protected override async Task OnInitializedAsync()
+    {
+        ApplicationUser = await _accessService.GetApplicationUser();
+        @*using (var _context = _contextFactory.CreateDbContext())
+            {
+                ApplicationUser = await _context.ApplicationUser
+                    .FirstOrDefaultAsync(u => u.Email == _signInManager.Context.User.Identity.Name);
+            }*@
+    }
+}

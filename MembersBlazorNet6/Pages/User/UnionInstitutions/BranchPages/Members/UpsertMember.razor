@@ -1,0 +1,213 @@
+﻿@page "/user/unionInstitutions/branchPages/members/upsertMember/createMember/{fireId:int}/{branchId:int}"
+@page "/user/unionInstitutions/branchPages/members/upsertMember/editMember/{memberId:int}/{branchId}"
+
+@inject IDbContextFactory<ApplicationDbContext> _contextFactory
+@inject NotificationService _notificationService
+@inject TooltipService _tooltipService
+@inject NavigationManager _navigationManager
+@inject DialogService _dialogService
+@inject IAccessService _accessService
+@inject IMemberRepository _memberRepository
+
+<div class="container">
+    @if (ProgressBarVisible)
+    {
+        <RadzenProgressBar Value="100" ShowValue="false" Mode="ProgressBarMode.Indeterminate" />
+    }
+    else
+    {
+        <Breadcrumb Title="@Title" />
+
+        <EditForm Model="@Member" OnValidSubmit="@MemberUpsertMethod">
+            <DataAnnotationsValidator />
+            @if (memberId != null)
+            {
+                <div class="form-group row">
+                    <div class="col-md-6">
+                        <small class="text-secondary d-block">Placówka*</small>
+                        <RadzenDropDown AllowClear="true" AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" @bind-Value=@Member.UnionInstitutionId Placeholder="Wybierz placówkę z listy"
+                                        Data=@FiresList TextProperty="FullName" ValueProperty="Id" Class="w-100" />
+                        <ValidationMessage For="() => Member.UnionInstitutionId" />
+                    </div>
+                </div>
+            }
+
+            <div class="form-group row">
+                <div class="col-md-3">
+                    <small class="text-secondary d-block">Imię*</small>
+                    <RadzenTextBox @bind-Value="Member.FirstName" Placeholder="np. Irena" Class="form-control" />
+                    <ValidationMessage For="() => Member.FirstName" />
+                </div>
+                <div class="col-md-3">
+                    <small class="text-secondary d-block">Drugie imię</small>
+                    <RadzenTextBox @bind-Value="Member.SecondName" Placeholder="np. Monika" Class="form-control" />
+                    <ValidationMessage For="() => Member.SecondName" />
+                </div>
+                <div class="col-md-6">
+                    <small class="text-secondary d-block">Nazwisko*</small>
+                    <RadzenTextBox @bind-Value="Member.LastName" Placeholder="np. Kowalska-Nowak" Class="form-control" />
+                    <ValidationMessage For="() => Member.LastName" />
+                </div>
+
+            </div>
+            <div class="form-group row">
+                <div class="col-md-4">
+                    <small class="text-secondary d-block">Pesel*</small>
+                    <RadzenMask @bind-Value="Member.Pesel" Placeholder="Wpisz nr pesel" Class="form-control" Mask="***********" CharacterPattern="[0-9]" Disabled="@(PeselEditable == false)" />
+                    <ValidationMessage For="() => Member.Pesel" />
+                </div>
+                <div class="col-md-4">
+                    <small class="text-secondary d-block">Data przyjęcia do ZNP*</small>
+                    <RadzenDatePicker @bind-Value="Member.StartDate" DateFormat="d" Class="w-100" />
+                    <ValidationMessage For="() => Member.StartDate" />
+                </div>
+                <div class="col-md-4">
+                    <small class="text-secondary d-block">Nr legitymacji</small>
+                    <RadzenMask @bind-Value="Member.UnionCard" Placeholder="Wpisz nr legitymacji" Class="form-control" Mask="***********" CharacterPattern="[0-9]" />
+                    <ValidationMessage For="() => Member.UnionCard" />
+                </div>
+            </div>
+            <div class="form-group row">
+                <div class="col-md-6">
+                    <small class="text-secondary d-block">Stanowisko pracy*</small>
+                    <RadzenDropDown AllowClear="true" AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" @bind-Value=@Member.MemberWorkPlaceId Placeholder="Wybierz stanowisko z listy"
+                                    Data=@WorkPlaces TextProperty="Name" ValueProperty="Id" Class="w-100" />
+                    <ValidationMessage For="() => Member.MemberWorkPlaceId" />
+                </div>
+                <div class="col-md-6">
+                    <small class="text-secondary d-block">Wykształcenie*</small>
+                    <RadzenDropDown AllowClear="true" AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" @bind-Value=@Member.EducationId Placeholder="Wybierz wykształcenie z listy"
+                                    Data=@Educations TextProperty="Name" ValueProperty="Id" Class="w-100" />
+                    <ValidationMessage For="() => Member.EducationId" />
+                </div>
+
+            </div>
+            <RadzenButton ButtonType="ButtonType.Submit" ButtonStyle="ButtonStyle.Success" Text="Zapisz" />
+            <RadzenButton ButtonStyle="ButtonStyle.Secondary" Text="Anuluj" Click="@(args => BackToFireMembers(UnionInstitution.Id))" />
+        </EditForm>
+    }
+</div>
+
+
+@code {
+
+    [Parameter]
+    public int? fireId { get; set; }
+    [Parameter]
+    public int? memberId { get; set; }
+    [Parameter]
+    public string ReturnUrl { get; set; }
+    [Parameter]
+    public int? branchId { get; set; }
+    private string Title = "";
+    public UnionInstitution UnionInstitution { get; set; }
+    public IList<UnionInstitution> FiresList { get; set; }
+    public IList<WorkPlace> WorkPlaces { get; set; }
+    public IList<Education> Educations { get; set; }
+    public bool ProgressBarVisible { get; set; }
+    public Member Member { get; set; }
+    public bool PeselEditable { get; set; } = true;
+
+
+    protected async override Task OnInitializedAsync()
+    {
+        ProgressBarVisible = true;
+        if (fireId != null)
+        {
+            #region checkAccess
+            UnionInstitution = await _accessService.AccessBranchToFire(fireId);
+            if (UnionInstitution == null)
+            {
+                _navigationManager.NavigateTo("/NotFoundPage");
+            }
+            #endregion
+
+            Title = $"{UnionInstitution.FullName} - dodaj nową osobę";
+            Member = new Member();
+            Member.StartDate = DateTime.Now;
+        }
+
+        if (memberId != null)
+        {
+            using (var _context = _contextFactory.CreateDbContext())
+            {
+                Member = await _context.Member
+                    .FirstOrDefaultAsync(m => m.Id == memberId);
+                if (Member == null)
+                {
+                    _navigationManager.NavigateTo("/NotFoundPage");
+                }
+            }
+            #region checkAccess
+            UnionInstitution = await _accessService.AccessBranchToFire(Member.UnionInstitutionId);
+            if (UnionInstitution == null)
+            {
+                _navigationManager.NavigateTo("/NotFoundPage");
+            }
+            #endregion
+
+            Title = $"{UnionInstitution.FullName} - edytuj osobę osobę";
+            PeselEditable = false;
+            using (var _context = _contextFactory.CreateDbContext())
+            {
+                FiresList = await _context.UnionInstitution
+                .Where(u => u.MotherInstitutionId == UnionInstitution.MotherInstitutionId)
+                .OrderBy(u => u.FullName)
+                .ToListAsync();
+            }
+        }
+        using (var _context = _contextFactory.CreateDbContext())
+        {
+            WorkPlaces = await _context.WorkPlace
+                .Where(w => w.Name != MemberWorkPlaceSD.Pensioner)
+                .ToListAsync();
+
+            Educations = await _context.Education
+                .ToListAsync();
+        }
+        ProgressBarVisible = false;
+    }
+
+    async Task MemberUpsertMethod()
+    {
+        if (fireId != null)
+        {
+            Member.UnionInstitutionId = fireId;
+            var statusOperation = await _memberRepository.CreateMember(Member);
+            if (statusOperation.Status)
+            {
+                _notificationService.Notify(NotificationSeverity.Success, "Sukces", statusOperation.Message, 3000);
+                _navigationManager.NavigateTo($"/user/unionInstitution/members/membersList/fire/{UnionInstitution.Id}");
+            }
+            else
+            {
+                _notificationService.Notify(NotificationSeverity.Error, "Błąd", statusOperation.Message, 3000);
+                return;
+            }
+        }
+
+        if (memberId != null)
+        {
+            var statusOperation = await _memberRepository.UpdateMember(Member);
+            if (statusOperation.Status)
+            {
+                _notificationService.Notify(NotificationSeverity.Success, "Sukces", statusOperation.Message, 3000);
+                _navigationManager.NavigateTo($"/user/unionInstitution/members/membersList/fire/{Member.UnionInstitutionId}");
+            }
+            else
+            {
+                _notificationService.Notify(NotificationSeverity.Error, "Błąd", $"Dane osoby {Member.FullName} nie zostały zmienione.", 3000);
+                return;
+            }
+        }
+    }
+
+    async Task BackToFireMembers(int unionInstitutionId)
+    {
+        _navigationManager.NavigateTo($"/user/unionInstitution/members/membersList/fire/{unionInstitutionId}");
+    }
+
+}
+
+
+

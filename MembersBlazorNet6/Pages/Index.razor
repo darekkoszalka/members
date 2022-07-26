@@ -1,0 +1,156 @@
+﻿@page "/"
+
+@inject IAccessService _accessService
+@inject NavigationManager _navigationManager
+@inject IDbContextFactory<ApplicationDbContext> _contextFactory
+<div class="row">
+    <div class="col-12 text-center mt-4">
+        <h1 class="text-center">Witamy w programie Members!</h1>
+        <h2 class="text-primary">Twoja administracja</h2>
+    </div>
+</div>
+<div class="container">
+    @if (ProgressBarVisible)
+    {
+        <RadzenProgressBar Value="100" ShowValue="false" Mode="ProgressBarMode.Indeterminate" />
+    }
+    else
+    {
+        <div class="row">
+            <div class="col-12">
+                <div class="row">
+                    @if (UserAccesses != null && UserAccesses.Count > 0)
+                    {
+                        @foreach (var access in UserAccesses)
+                        {
+                            <div class="col-sm-4">
+                                <RadzenCard>
+                                    <div class="text-center">
+                                        @if (access.Access == RoleSD.SuperAdmin)
+                                        {
+                                            if (!access.Lock)
+                                            {
+                                                <div style="height: 100px;">
+                                                    <h3>Zarządzaj jako @access.Access</h3>
+                                                </div>
+
+                                                <RadzenButton Click="@GoToSuperAdmin" Text="Wejdź" />
+                                            }
+                                            else
+                                            {
+                                                <div style="height: 100px;">
+                                                    <h3>Zarządzaj jako @access.Access</h3>
+                                                </div>
+                                                <p class="text-danger">Dostęp zablokowany</p>
+                                            }
+                                        }
+                                        @if (access.Access == RoleSD.Admin)
+                                        {
+                                            if (!access.Lock)
+                                            {
+                                                <div style="height: 100px;">
+                                                    <h3>Zarządzaj jako @access.Access</h3>
+                                                </div>
+                                                <RadzenButton Click="@GoToAdmin" Text="Wejdź" />
+                                            }
+                                            else
+                                            {
+                                                <div style="height: 100px;">
+                                                    <h3>Zarządzaj jako @access.Access</h3>
+                                                </div>
+                                                <p class="text-danger">Dostęp zablokowany</p>
+                                            }
+                                        }
+                                        @if (access.Access != RoleSD.SuperAdmin && access.Access != RoleSD.Admin && !access.Lock)
+                                        {
+                                            if (!access.Lock)
+                                            {
+                                                var id = access.UnionInstitutionId;
+                                                using (var _context = _contextFactory.CreateDbContext())
+                                                {
+                                                    var unionInstitution = _context.UnionInstitution
+                                                        .FirstOrDefault(u => u.Id == id);
+                                                    <div style="height: 100px;">
+                                                        <h3>@unionInstitution.FullName</h3>
+                                                    </div>
+                                                    <RadzenButton Click="@(args=>GotoUnionInstitution(id))" Text="Wejdź" />
+                                                }
+                                            }
+                                            else
+                                            {
+                                                var id = access.UnionInstitutionId;
+                                                using (var _context = _contextFactory.CreateDbContext())
+                                                {
+                                                    var unionInstitution = _context.UnionInstitution
+                                                    .FirstOrDefault(u => u.Id == id);
+                                                    <div style="height: 100px;">
+                                                        <h3>@unionInstitution.FullName</h3>
+                                                    </div>
+                                                    <p class="text-danger">Dostęp zablokowany</p>
+                                                }
+                                            }
+                                        }
+
+                                    </div>
+                                </RadzenCard>
+                            </div>
+                        }
+                    }
+                </div>
+            </div>
+
+        </div>
+    }
+</div>
+
+
+
+@code {
+
+    public bool ProgressBarVisible { get; set; }
+    public IList<UserAccess> UserAccesses { get; set; }
+    public UnionInstitution ChoosedUnionInstitution { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        ProgressBarVisible = true;
+        UserAccesses = await _accessService.UserAccessesIfAuthentication();
+        if (UserAccesses == null)
+        {
+            _navigationManager.NavigateTo("/NotFoundPage");
+        }
+        ProgressBarVisible = false;
+    }
+    private async Task GoToSuperAdmin()
+    {
+        _navigationManager.NavigateTo("/admin/adminStartPage");
+    }
+    private async Task GoToAdmin()
+    {
+        _navigationManager.NavigateTo("/admin/adminStartPage");
+    }
+
+    private async Task GotoUnionInstitution(int? unionInstitutionId)
+    {
+        if (unionInstitutionId == null)
+        {
+            _navigationManager.NavigateTo("/NotFoundPage");
+        }
+        using (var _context = _contextFactory.CreateDbContext())
+        {
+            ChoosedUnionInstitution = await _context.UnionInstitution
+                .Include(u => u.TypeOfUnionInstitution)
+                .FirstOrDefaultAsync(u => u.Id == unionInstitutionId);
+        }
+        if (ChoosedUnionInstitution.TypeOfUnionInstitution.Name == TypeOfUnionInstitutionSD.Branch)
+        {
+            _navigationManager.NavigateTo($"/user/unionInstitutions/branchPages/branchIndex/{unionInstitutionId}");
+        }
+        if (ChoosedUnionInstitution.TypeOfUnionInstitution.Name == TypeOfUnionInstitutionSD.District)
+        {
+            _navigationManager.NavigateTo($"/user/unionInstitutions/district/districtIndex/{unionInstitutionId}");
+        }
+
+    }
+
+}

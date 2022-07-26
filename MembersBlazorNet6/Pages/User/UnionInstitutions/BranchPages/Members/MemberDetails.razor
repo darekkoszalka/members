@@ -1,0 +1,76 @@
+﻿@page "/user/unioninstitutions/branchPages/members/meberDetails/{memberId:int}/{branchId:int}"
+@inject NotificationService _notificationService
+@inject NavigationManager _navigationManager
+@inject IAccessService _accessService
+@inject IMemberRepository _memberRepository
+@inject IUnionInstitutionRepository _unionInstitutionRepository
+
+<div class="container">
+    @if (ProgressBarVisible)
+    {
+        <RadzenProgressBar Value="100" ShowValue="false" Mode="ProgressBarMode.Indeterminate" />
+    }
+    else
+    {
+        <Breadcrumb Title="@Title" />
+        <div class="row my-5">
+            <div class="col-sm-6 my-2">
+                <MemberDetailsComponent Member="Member" EditDetails="GetMemberEdit" />
+            </div>
+            <div class="col-sm-6 my-2">
+                <MemberContactComponent Member="Member" EditContact="GetMemberContactEdit" AddContact="GetMemberContactCreate" MemberContact="MemberContact" />
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-12">
+                <MemberUnionFunctionComponent Functions="UnionStructureFunctions" />
+            </div>
+        </div>
+    }
+</div>
+
+
+@code {
+    [Parameter]
+    public int? branchId { get; set; }
+    [Parameter]
+    public int? memberId { get; set; }
+    public string Title { get; set; }
+    public Member Member { get; set; }
+    public MemberContact MemberContact { get; set; }
+    public IList<UnionStructureFunction> UnionStructureFunctions { get; set; }
+    public bool ProgressBarVisible { get; set; }
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        ProgressBarVisible = true;
+        if (branchId == null) _navigationManager.NavigateTo("/NotFoundPage");
+        var result = await _accessService.AccessByInsitutionId(branchId);
+        if (!result) _navigationManager.NavigateTo("/NotFoundPage");
+        if (memberId == null) _navigationManager.NavigateTo("/NotFoundPage");
+        Member = await _memberRepository.GetMemberById(memberId);
+        if (Member == null) _navigationManager.NavigateTo("/NotFoundPage");
+        MemberContact = await _memberRepository.GetMemberContactByMemberId(memberId);
+        UnionStructureFunctions = await _memberRepository.UnionFunctions(memberId);
+        Title = $"{Member.FullName} - szczegóły";
+
+
+        ProgressBarVisible = false;
+    }
+
+    async Task GetMemberEdit()
+    {
+
+    }
+    async Task GetMemberContactEdit()
+    {
+
+    }
+    async Task GetMemberContactCreate()
+    {
+
+    }
+
+}
+

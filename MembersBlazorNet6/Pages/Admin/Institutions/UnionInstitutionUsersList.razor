@@ -1,0 +1,351 @@
+﻿@page "/admin/institution/UnionInstitutionUsersList/{UnionInstitutionId:int}"
+
+@inject NotificationService _notificationService
+@inject TooltipService _tooltipService
+@inject NavigationManager _navigationManager
+@inject DialogService _dialogService
+@inject IDbContextFactory<ApplicationDbContext> _contextFactory
+@inject IAccessService _accessService
+@inject IUnionInstitutionRepository _unionInstitutionRepository
+
+<div class="container">
+    @if (ProgressBarVisible)
+    {
+        <RadzenProgressBar Value="100" ShowValue="false" Mode="ProgressBarMode.Indeterminate" />
+    }
+    else
+    {
+        <Breadcrumb Title="@Title" />
+        @if (UnionInstitutionId != null)
+        {
+            <RadzenButton Text="Dodaj nowego użytkownika" Icon="add_circle_outline" Click="@AddUser" ButtonStyle="ButtonStyle.Primary" Style="margin-bottom: 20px;" />
+        }
+
+        <RadzenDataGrid @ref="@UsersGrid" Data="@UserAccesses" TItem="UserAccess" AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" AllowPaging="true" AllowSorting="true" FilterMode="FilterMode.Simple">
+            <EmptyTemplate>
+                <p style="color: lightgrey; font-size: 24px; text-align: center; margin: 2rem;">Brak danych.</p>
+            </EmptyTemplate>
+            <Columns>
+
+                <RadzenDataGridColumn TItem="UserAccess" Property="UserAccess.ApplicationUser.LastName" Title="Nazwisko">
+                    <Template Context="userAccess">
+                        @userAccess.ApplicationUser.LastName
+                    </Template>
+                </RadzenDataGridColumn>
+                <RadzenDataGridColumn TItem="UserAccess" Property="UserAccess.ApplicationUser.LastName" Title="Imię">
+                    <Template Context="userAccess">
+                        @userAccess.ApplicationUser.FirstName
+                    </Template>
+                </RadzenDataGridColumn>
+                @*<RadzenDataGridColumn TItem="ApplicationUser" Property="Unioninstitution.FullName" Title="Dostęp" Sortable="false" Filterable="false">
+                        <Template Context="applicationUser">
+                            @{
+                                @if (UnionInstitution == null)
+                                {
+                                    UserAccesses = new List<UserAccess>();
+
+
+                                    using (var _context = _contextFactory.CreateDbContext())
+                                    {
+                                        UserAccesses = _context.UserAccess
+                                            .Where(a => a.UserId == applicationUser.Id)
+                                            .ToList();
+                                    }
+
+                                    foreach (var access in UserAccesses)
+                                    {
+                                        if (access.Access == RoleSD.SuperAdmin || access.Access == RoleSD.Admin)
+                                        {
+                                            if (!access.Lock)
+                                            {
+                                                <div class="row">
+                                                    <div class="col-8">
+                                                        @access.Access
+                                                    </div>
+                                                    <div class="col-4">
+                                                        <div class="row p-1">
+                                                            <div class="col-2">
+                                                                <RadzenButton Icon="lock_open" ButtonStyle="ButtonStyle.Success" Size="ButtonSize.Small" Click="@(args => LockAccess(access))" MouseEnter="@(args => ShowLockTooltip(args))" />
+                                                            </div>
+                                                            <div class="col-2">
+                                                                <RadzenButton Icon="delete_forever" ButtonStyle="ButtonStyle.Danger" Size="ButtonSize.Small" Click="@(args => DeleteAccess(access))" MouseEnter="@(args => ShowDeleteAccessTooltip(args))" />
+                                                            </div>
+
+                                                        </div>
+
+
+                                                    </div>
+                                                </div>
+                                            }
+
+                                            else
+                                            {
+                                                <div class="row">
+                                                    <div class="col-8">
+                                                        @access.Access
+                                                    </div>
+                                                    <div class="col-4">
+                                                        <div class="row p-1">
+                                                            <div class="col-2">
+                                                                <RadzenButton Icon="lock" ButtonStyle="ButtonStyle.Danger" Size="ButtonSize.Small" Click="@(args => UnlockAccess(access))" MouseEnter="@(args => ShowUnlockTooltip(args))" />
+                                                            </div>
+                                                            <div class="col-2">
+                                                                <RadzenButton Icon="delete_forever" ButtonStyle="ButtonStyle.Danger" Size="ButtonSize.Small" Click="@(args => DeleteAccess(access))" MouseEnter="@(args => ShowDeleteAccessTooltip(args))" />
+                                                            </div>
+
+                                                        </div>
+                                                    </div>
+
+                                                </div>
+
+                                            }
+
+                                        }
+                                        else
+                                        {
+                                            var unionInstitution = new UnionInstitution();
+                                            using (var _context = _contextFactory.CreateDbContext())
+                                            {
+                                                unionInstitution = _context.UnionInstitution
+                                                    .FirstOrDefault(u => u.Id == Int32.Parse(access.Access));
+                                            }
+
+
+                                            if (!access.Lock)
+                                            {
+                                                <div class="row">
+                                                    <div class="col-8">
+                                                        @unionInstitution.ShortName
+                                                    </div>
+                                                    <div class="col-4">
+                                                        <div class="row">
+                                                            <div class="col-2">
+                                                                <RadzenButton Icon="lock_open" ButtonStyle="ButtonStyle.Success" Size="ButtonSize.Small" Click="@(args => LockAccess(access))" MouseEnter="@(args => ShowLockTooltip(args))" />
+                                                            </div>
+                                                            <div class="col-2">
+                                                                <RadzenButton Icon="delete_forever" ButtonStyle="ButtonStyle.Danger" Size="ButtonSize.Small" Click="@(args => DeleteAccess(access))" MouseEnter="@(args => ShowDeleteAccessTooltip(args))" />
+                                                            </div>
+
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                            }
+
+                                            else
+                                            {
+                                                <div class="row">
+                                                    <div class="col-8">
+                                                        @unionInstitution.ShortName
+                                                    </div>
+                                                    <div class="col-4">
+                                                        <div class="row p-1">
+                                                            <div class="col-2">
+                                                                <RadzenButton Icon="lock" ButtonStyle="ButtonStyle.Danger" Size="ButtonSize.Small" Click="@(args => UnlockAccess(access))" MouseEnter="@(args => ShowUnlockTooltip(args))" />
+                                                            </div>
+                                                            <div class="col-2">
+                                                                <RadzenButton Icon="delete_forever" ButtonStyle="ButtonStyle.Danger" Size="ButtonSize.Small" Click="@(args => DeleteAccess(access))" MouseEnter="@(args => ShowDeleteAccessTooltip(args))" />
+                                                            </div>
+
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                            }
+
+
+                                        }
+                                    }
+                                }
+
+                            }
+                        </Template>
+                    </RadzenDataGridColumn>*@
+                <RadzenDataGridColumn TItem="UserAccess" Title="Akcje" Sortable="false">
+                    <Template Context="userAccess">
+                        <RadzenButton ButtonStyle="ButtonStyle.Info" Icon="info" Size="ButtonSize.Medium" Class="m-1" Click="@(args => Details(userAccess))" @onclick:stopPropagation="true" MouseEnter="@(args => ShowDetailsTooltip(args))">
+                        </RadzenButton>
+                        @{
+                            using (var _context = _contextFactory.CreateDbContext())
+                            {
+                                var accesses = _context.UserAccess
+                                    .Where(a => a.Access == userAccess.Access)
+                                    .ToList();
+
+                                if (accesses != null)
+                                {
+
+                                    <RadzenButton ButtonStyle="ButtonStyle.Danger" Icon="delete" Size="ButtonSize.Medium" Class="m-1" Click="@(args => ShowDeleteDialog(userAccess))" @onclick:stopPropagation="true" MouseEnter="@(args => ShowDeleteTooltip(args))">
+                                    </RadzenButton>
+
+                                }
+
+
+                            }
+
+
+                        }
+
+                    </Template>
+                </RadzenDataGridColumn>
+            </Columns>
+
+        </RadzenDataGrid>
+    }
+</div>
+
+
+@code {
+
+    [Parameter]
+    public int? UnionInstitutionId { get; set; }
+    [Parameter]
+    public string Title { get; set; }
+    [Parameter]
+    public UnionInstitution UnionInstitution { get; set; }
+    public bool ProgressBarVisible { get; set; }
+    public IList<UserAccess> UserAccesses { get; set; }
+    RadzenDataGrid<UserAccess> UsersGrid;
+
+    protected override async Task OnInitializedAsync()
+    {
+        ProgressBarVisible = true;
+        if (UnionInstitutionId == null)
+        {
+            _navigationManager.NavigateTo("/NotFoundPage");
+        }
+        UnionInstitution = await _unionInstitutionRepository.GetUnionInstitutionById(UnionInstitutionId);
+        UserAccesses = await _accessService.GetUnionInstitutionAccessessByInstId(UnionInstitutionId);
+
+        Title = $"{UnionInstitution.FullName} - Użytkownicy";
+        _dialogService.OnOpen += Open;
+        _dialogService.OnClose += Close;
+        ProgressBarVisible = false;
+    }
+
+    async Task AddUser()
+    {
+        _navigationManager.NavigateTo($"/Identity/Account/Register?id={UnionInstitution.Id}", true);
+    }
+
+    async Task LockAccess(UserAccess access)
+    {
+        access.Lock = true;
+
+        using (var _context = _contextFactory.CreateDbContext())
+        {
+            _context.UserAccess.Update(access);
+
+            await _context.SaveChangesAsync();
+
+            _notificationService.Notify(NotificationSeverity.Success, "Sukces", "Użytkownik został zablokowany");
+        }
+
+    }
+    async Task UnlockAccess(UserAccess access)
+    {
+        access.Lock = false;
+
+        using (var _context = _contextFactory.CreateDbContext())
+        {
+            _context.UserAccess.Update(access);
+
+            await _context.SaveChangesAsync();
+
+            _notificationService.Notify(NotificationSeverity.Success, "Sukces", "Użytkownik został odblokowany");
+        }
+    }
+
+    async Task DeleteAccess(UserAccess access)
+    {
+
+        using (var _context = _contextFactory.CreateDbContext())
+        {
+            var user = await _context.ApplicationUser
+                .FirstOrDefaultAsync(u => u.Id == access.UserId);
+
+            var result = await _dialogService.OpenAsync("Uwaga", ds =>
+    @<div>
+        <h3 class="mb-4 text-danger">Czy na pewno chcesz usunąć dostęp dla '@user.FirstName @user.LastName'?</h3>
+        <div class="row">
+            <div class="col">
+                <RadzenButton Text="Usuń" Click="() => ds.Close(true)" Class="mr-1" ButtonStyle="ButtonStyle.Danger" />
+                <RadzenButton Text="Anuluj" Click="() => ds.Close(false)" ButtonStyle="ButtonStyle.Secondary" Class="mr-1" />
+            </div>
+        </div>
+    </div>);
+      if (result)
+      {
+          _context.UserAccess.Remove(access);
+
+          await _context.SaveChangesAsync();
+
+          _notificationService.Notify(NotificationSeverity.Success, "Sukces", $"Pomyślnie usunięto dostep dla '{user.FirstName} {user.LastName}'", 3000);
+      }
+
+  }
+}
+
+
+
+async Task UserUpsert()
+{
+  if (UnionInstitutionId != null)
+  {
+      _navigationManager.NavigateTo($"/admin/users/userUpsert/{UnionInstitutionId}");
+  }
+
+}
+
+async Task Details(UserAccess userAccess)
+{
+  _navigationManager.NavigateTo($"/users/details/{userAccess.ApplicationUser.Id}");
+}
+
+
+async Task ShowDeleteDialog(UserAccess userAccess)
+{
+  var result = await _dialogService.OpenAsync("Uwaga", ds =>
+@<div>
+    <h3 class="mb-4 text-danger">Czy na pewno chcesz usunąć '@userAccess.ApplicationUser.FirstName @userAccess.ApplicationUser.LastName'?</h3>
+    <div class="row">
+        <div class="col">
+            <RadzenButton Text="Usuń" Click="() => ds.Close(true)" Class="mr-1" ButtonStyle="ButtonStyle.Danger" />
+            <RadzenButton Text="Anuluj" Click="() => ds.Close(false)" ButtonStyle="ButtonStyle.Secondary" Class="mr-1" />
+        </div>
+    </div>
+</div>);
+
+if (result)
+{
+using (var _context = _contextFactory.CreateDbContext())
+{
+
+    _context.UserAccess.Remove(userAccess);
+
+
+    await _context.SaveChangesAsync();
+
+    UserAccesses = await _context.UserAccess
+        .Where(a => a.Access == UnionInstitutionId.ToString())
+        .ToListAsync();
+
+}
+}
+
+_notificationService.Notify(NotificationSeverity.Success, "Sukces", $"Pomyślnie usunięto '{userAccess.ApplicationUser.FirstName} {userAccess.ApplicationUser.LastName}'", 3000);
+
+
+}
+
+void Open(string title, Type type, Dictionary<string, object> parameters, DialogOptions options) { }
+
+void Close(dynamic result) { }
+void ShowDeleteTooltip(ElementReference elementReference, TooltipOptions options = null) => _tooltipService.Open(elementReference, "Usuń", options);
+void ShowDetailsTooltip(ElementReference elementReference, TooltipOptions options = null) => _tooltipService.Open(elementReference, "Szczegóły", options);
+void ShowLockTooltip(ElementReference elementReference, TooltipOptions options = null) => _tooltipService.Open(elementReference, "Zablokuj", options);
+void ShowUnlockTooltip(ElementReference elementReference, TooltipOptions options = null) => _tooltipService.Open(elementReference, "Odblokuj", options);
+void ShowDeleteAccessTooltip(ElementReference elementReference, TooltipOptions options = null) => _tooltipService.Open(elementReference, "Usuń dostęp", options);
+}
+
+

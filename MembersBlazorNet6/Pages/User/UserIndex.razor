@@ -1,0 +1,47 @@
+﻿@page "/user/userIndex/{UnionInstitutionId:int}"
+@inject IDbContextFactory<ApplicationDbContext> _contextFactory
+@inject IAccessService _accessService
+@inject NavigationManager _navigationManager
+@inject IUnionInstitutionRepository _unionInsitutionRepository
+
+
+<div class="container">
+    @if (ProgressBarVisible)
+    {
+        <RadzenProgressBar Value="100" ShowValue="false" Mode="ProgressBarMode.Indeterminate" />
+    }
+    else
+    {
+        <Breadcrumb Title="@Title" />
+    }
+</div>
+
+@code {
+
+    [Parameter]
+    public int? UnionInstitutionId { get; set; }
+    public bool ProgressBarVisible { get; set; }
+    public string Title { get; set; }
+    public UnionInstitution UnionInstitution { get; set; } = new UnionInstitution();
+
+    protected override async Task OnInitializedAsync()
+    {
+        ProgressBarVisible = true;
+        if (UnionInstitutionId == null)
+        {
+            _navigationManager.NavigateTo("NotFound");
+        }
+        var result = await _accessService.AccessByInsitutionId(UnionInstitutionId);
+        if (!result)
+        {
+            _navigationManager.NavigateTo("NotFound");
+        }
+        UnionInstitution = await _unionInsitutionRepository.GetUnionInstitutionById(UnionInstitutionId);
+        if (UnionInstitution == null)
+        {
+            _navigationManager.NavigateTo("NotFound");
+        }
+        Title = $"{UnionInstitution.FullName}";
+        ProgressBarVisible = false;
+    }
+}

@@ -1,0 +1,164 @@
+﻿@page "/user/unionInstitution/members/membersList/{branchId:int}"
+@page "/user/unionInstitution/members/membersList/fire/{fireId:int}/{branchId:int}"
+
+@inject IDbContextFactory<ApplicationDbContext> _contextFactory
+@inject NotificationService _notificationService
+@inject TooltipService _tooltipService
+@inject NavigationManager _navigationManager
+@inject DialogService _dialogService
+@inject IAccessService _accessService
+@inject IMemberRepository _memberRepository
+@inject IUnionInstitutionRepository _unionInstitutionRepository
+@implements IDisposable
+
+<div class="container">
+    @if (ProgressBarVisible)
+    {
+        <RadzenProgressBar Value="100" ShowValue="false" Mode="ProgressBarMode.Indeterminate" />
+    }
+    else
+    {
+        <Breadcrumb Title="@Title" />
+        @if (AddMemberButtonVisible)
+        {
+            <RadzenButton Text="Dodaj osobę" Icon="add_circle_outline" Click="@GoToMemberCreator" ButtonStyle="ButtonStyle.Primary" Style="margin-bottom: 20px;" />
+        }
+        <RadzenDataGrid @ref="@membersGrid" Data="@Members" TItem="Member" AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" AllowPaging="true" AllowSorting="true" FilterMode="FilterMode.Simple">
+            <EmptyTemplate>
+                <p style="color: lightgrey; font-size: 24px; text-align: center; margin: 2rem;">Brak danych.</p>
+            </EmptyTemplate>
+            <Columns>
+                <RadzenDataGridColumn TItem="Member" Property="FullName" Title="Nazwisko i imię">
+                    <Template Context="member">
+                        @member.FullName
+                    </Template>
+                </RadzenDataGridColumn>
+                <RadzenDataGridColumn TItem="Member" Property="UnionIstitution.ShortName" Title="Ognisko">
+                    <Template Context="member">
+                        @member.UnionInstitution.ShortName
+                    </Template>
+                </RadzenDataGridColumn>
+                <RadzenDataGridColumn TItem="Member" Title="Akcje" Sortable="false">
+                    <Template Context="member">
+                        <RadzenButton Icon="money" Size="ButtonSize.Medium" ButtonStyle="ButtonStyle.Success" Click="@(args => Payment(member))" @onclick:stopPropagation="true" MouseEnter="@(args => ShowPaymentTooltip(args))" />
+                        <RadzenButton ButtonStyle="ButtonStyle.Info" Icon="info" Size="ButtonSize.Medium" Class="m-1" Click="@(args => GoToMemberDetails(member.Id))" @onclick:stopPropagation="true" MouseEnter="@(args => ShowDetailsTooltip(args))">
+                        </RadzenButton>
+                        <RadzenButton ButtonStyle="ButtonStyle.Danger" Icon="delete" Size="ButtonSize.Medium" Class="m-1" Click="@(args => ShowDeleteDialog(member))" @onclick:stopPropagation="true" MouseEnter="@(args => ShowDeleteTooltip(args))">
+                        </RadzenButton>
+                    </Template>
+                </RadzenDataGridColumn>
+            </Columns>
+        </RadzenDataGrid>
+    }
+</div>
+
+
+
+@code {
+    #region zmienne
+    [Parameter]
+    public int? fireId { get; set; }
+    [Parameter]
+    public int? branchId { get; set; }
+    public bool ProgressBarVisible { get; set; }
+    public bool AddMemberButtonVisible { get; set; } = false;
+    public UnionInstitution UnionInstitution { get; set; }
+    public IList<Member> Members { get; set; }
+    RadzenDataGrid<Member> membersGrid;
+    private string Title = "";
+    #endregion zmienne
+
+    protected override async Task OnInitializedAsync()
+    {
+        ProgressBarVisible = true;
+        if (branchId == null)
+        {
+
+            _navigationManager.NavigateTo("/NotFoundPage");
+        }
+        var result = await _accessService.AccessByInsitutionId(branchId);
+        if (!result)
+        {
+            _navigationManager.NavigateTo("/NotFoundPage");
+        }
+
+        if (fireId != null)
+        {
+            AddMemberButtonVisible = true;
+            UnionInstitution = await _unionInstitutionRepository.GetUnionInstitutionById(fireId);
+            if (UnionInstitution == null)
+            {
+                _navigationManager.NavigateTo("/NotFoundPage");
+            }
+            Members = await _memberRepository.GetMembersInFire(UnionInstitution.Id);
+        }
+        else
+        {
+            Members = await _memberRepository.GetMembersInBranch(branchId);
+            UnionInstitution = await _unionInstitutionRepository.GetUnionInstitutionById(branchId);
+            if (UnionInstitution == null)
+            {
+                _navigationManager.NavigateTo("/NotFoundPage");
+            }
+        }
+        Title = $"{UnionInstitution.FullName} - lista członków ZNP";
+        _dialogService.OnOpen += Open;
+        _dialogService.OnClose += Close;
+        ProgressBarVisible = false;
+    }
+
+    async Task GoToMemberCreator()
+    {
+        _navigationManager.NavigateTo($"/user/unionInstitutions/branchPages/members/upsertMember/createMember/{fireId}/{branchId}");
+    }
+
+    async Task GoToMemberDetails(int? memberId)
+    {
+        _navigationManager.NavigateTo($"/user/unioninstitutions/branchPages/members/meberDetails/{memberId}/{branchId}");
+    }
+
+    async Task ShowDeleteDialog(Member member)
+    {
+        var result = await _dialogService.OpenAsync("Uwaga", ds =>
+    @<div>
+        <h3 class="mb-4 text-danger">Czy na pewno chcesz usunąć '@member.FullName'?</h3>
+        <div class="row">
+            <div class="col">
+                <RadzenButton Text="Usuń" Click="() => ds.Close(true)" Class="mr-1" ButtonStyle="ButtonStyle.Danger" />
+                <RadzenButton Text="Anuluj" Click="() => ds.Close(false)" ButtonStyle="ButtonStyle.Secondary" Class="mr-1" />
+            </div>
+        </div>
+    </div>,
+new DialogOptions() { ShowClose = false });
+  if (result)
+  {
+      _memberRepository.Deletemember(member.Id);
+      Members = await _memberRepository.GetMembersInFire(UnionInstitution.Id);
+      _notificationService.Notify(NotificationSeverity.Success, "Sukces", $"Pomyślnie usunięto '{member.FullName}'", 3000);
+  }
+}
+
+void Open(string title, Type type, Dictionary<string, object> parameters, DialogOptions options) { }
+
+void Close(dynamic result) { }
+
+public void Dispose()
+{
+  // The DialogService is a singleton so it is advisable to unsubscribe.
+  _dialogService.OnOpen -= Open;
+  _dialogService.OnClose -= Close;
+}
+
+void ShowEditTooltip(ElementReference elementReference, TooltipOptions options = null) => _tooltipService.Open(elementReference, "Edytuj", options);
+void ShowDetailsTooltip(ElementReference elementReference, TooltipOptions options = null) => _tooltipService.Open(elementReference, "Szczegóły", options);
+void ShowDeleteTooltip(ElementReference elementReference, TooltipOptions options = null) => _tooltipService.Open(elementReference, "Usuń", options);
+void ShowPaymentTooltip(ElementReference elementReference, TooltipOptions options = null) => _tooltipService.Open(elementReference, "Składki", options);
+
+async Task Payment(Member member)
+{
+  _navigationManager.NavigateTo($"/users/branchPages/members/memberPaymentList/{member.Id}/{branchId}");
+}
+
+
+}
+

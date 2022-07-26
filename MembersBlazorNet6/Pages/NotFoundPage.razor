@@ -1,0 +1,28 @@
+﻿@page "/notFound"
+@attribute [AllowAnonymous]
+@inject NavigationManager _navigationManager
+@layout BlankLayout
+
+
+<div class="container">
+    <div class="row">
+        <div class="col-sm-8 offset-sm-2 mt-5">
+            <RadzenCard>
+                <div class="text-center">
+                    <h1 class="my-5">Przykro nam podana strona nie istnieje lub nie masz odpowiednich uprawnień.</h1>
+                    <RadzenButton Click="@Return" Text="Przejdź do strony głównej"></RadzenButton>
+                </div>
+            </RadzenCard>
+        </div>
+
+    </div>
+</div>
+
+@code {
+
+    async Task Return()
+    {
+        _navigationManager.NavigateTo("/");
+    }
+}
+

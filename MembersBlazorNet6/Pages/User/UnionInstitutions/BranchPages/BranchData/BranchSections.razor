@@ -1,0 +1,86 @@
+﻿@*@page "/user/unionInstitutions/branchPages/branchData/branchSections"
+
+    @inject IDbContextFactory<ApplicationDbContext> _contextFactory
+    @inject UserManager<ApplicationUser> _userManager;
+    @inject SignInManager<ApplicationUser> _signInManager
+    @inject NavigationManager _navigationManager
+    @inject IAccessService _accessService
+    @inject NotificationService _notificationService
+    <div class="container">
+        @if (ProgressBarVisible)
+        {
+            <RadzenProgressBar Value="100" ShowValue="false" Mode="ProgressBarMode.Indeterminate" />
+        }
+        else
+        {
+            <Breadcrumb Title="@Title" />
+            if (SectionCreatorVisible)
+            {
+                <div class="row">
+                    <div class="col-sm-8 offset-sm-2">
+                        <RadzenCard>
+                            <h3>Dodaj nową sekcję</h3>
+                            <EditForm Model="Section" OnValidSubmit="CreateSection">
+                                <DataAnnotationsValidator />
+                                <div class="form-group row">
+                                    <div class="col-md-6">
+                                        <small class="text-secondary d-block">Nazwa sekcji*</small>
+                                        <RadzenTextBox @bind-Value="Section.Name" />
+                                        <ValidationMessage For="() => Section.Name" />
+                                    </div>
+                                </div>
+                                <RadzenButton ButtonType="ButtonType.Submit" ButtonStyle="ButtonStyle.Success" Text="Zapisz" />
+                                <RadzenButton ButtonStyle="ButtonStyle.Secondary" Text="Anuluj" Click="@NoSaveSection" />
+                            </EditForm>
+                        </RadzenCard>
+                    </div>
+
+                </div>
+            }
+            <RadzenButton Text="Dodaj nową sekcję" Icon="add_circle_outline" Click="@ShowSectionCreator" ButtonStyle="ButtonStyle.Primary" Style="margin-bottom: 20px;" Disabled=@(SectionCreatorVisible == true) />
+
+            <RadzenDataGrid @ref="@unionSectionsGrid" Data="@Sections" TItem="UnionSectionOrClub" AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" AllowPaging="true" AllowSorting="true" FilterMode="FilterMode.Simple">
+                <EmptyTemplate>
+                    <p style="color: lightgrey; font-size: 24px; text-align: center; margin: 2rem;">Brak danych.</p>
+                </EmptyTemplate>
+                <Columns>
+                    <RadzenDataGridColumn TItem="UnionSectionOrClub" Property="Section.Name" Title="Nazwa sekcji">
+                        <Template Context="sectionContext">
+                            @sectionContext.Name
+                        </Template>
+
+                    </RadzenDataGridColumn>
+                </Columns>
+            </RadzenDataGrid>
+        }
+
+
+
+    </div>
+
+    @code {
+        private string Title = "";
+        public bool ProgressBarVisible { get; set; }
+        public bool SectionCreatorVisible { get; set; } = false;
+        public UnionSectionOrClub Section { get; set; }
+        public IList<UnionSectionOrClub> Sections { get; set; }
+        public UnionInstitution UnionInstitution { get; set; } = new UnionInstitution();
+        public TypeOfUnionInstitution TypeOfUnionInstitution { get; set; }
+        RadzenDataGrid<UnionSectionOrClub> unionSectionsGrid;
+
+        async Task ShowSectionCreator()
+        {
+
+        }
+
+        async Task CreateSection()
+        {
+
+        }
+
+        async Task NoSaveSection()
+        {
+
+        }
+    }*@
+
